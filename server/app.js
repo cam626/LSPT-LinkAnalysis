@@ -10,6 +10,8 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, '..', 'public')));
 // Serve static files from ../public/resources
 app.use(express.static(path.join(__dirname, '..', 'public/resources')));
+// Serve static files from ../public/views
+app.use(express.static(path.join(__dirname, '..', 'public/views')));
 
 const port = process.env.PORT || 8080;
 app.listen(port, function() {
