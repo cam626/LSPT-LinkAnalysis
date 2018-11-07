@@ -1,1 +1,4 @@
 node_modules
+
+# Editor specific ignores:
+.vscode
