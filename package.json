@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./server/app.js",
+    "start": "./node_modules/.bin/nodemon ./server/app.js",
     "test": "node ./server/tests",
     "lint": "./node_modules/.bin/eslint ./public/**/*.js ./server/**/*.js"
   },
@@ -15,16 +15,16 @@
   },
   "devDependencies": {
     "eslint": "^5.8.0",
-    "eslint-config-google": "^0.11.0"
+    "eslint-config-google": "^0.11.0",
+    "nodemon": "^1.18.6"
   },
   "eslintConfig": {
     "extends": "google",
     "parserOptions": {
-        "ecmaVersion": 2017
+      "ecmaVersion": 2017
     },
-
     "env": {
-        "es6": true
+      "es6": true
     }
   }
 }
