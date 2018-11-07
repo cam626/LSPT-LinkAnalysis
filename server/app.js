@@ -6,8 +6,8 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-// Serve static files from ../public
-app.use(express.static(path.join(__dirname, '..', 'public')));
+// Serve static files from ../public/styles
+app.use(express.static(path.join(__dirname, '..', 'public/styles')));
 // Serve static files from ../public/resources
 app.use(express.static(path.join(__dirname, '..', 'public/resources')));
 // Serve static files from ../public/views
