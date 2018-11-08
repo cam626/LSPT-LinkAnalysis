@@ -1,6 +1,7 @@
 #ifndef WEBGRAPH_H
 #define WEBGRAPH_H
 
+#include <vector>
 #include <string>
 #include <set>
 
@@ -8,9 +9,12 @@
 class Node {
 private:
     std::string url;
+    std::vector<Node> children;  // outgoing connections
 public:
-    Node(/* args */) { }
-    ~Node() { }
+    Node(const std::string &url_) : url(url_) {}
+    const void addChild(const Node &child_) { children.push_back(child_); }
+    const std::vector<Node> &getChildren() const;
+    // ~Node() { }
 };
 
 /* Webgraph class */
