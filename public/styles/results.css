@@ -61,14 +61,126 @@ body {
   width: height;
 }
 
+/* Container for the second row */
+#second-row {
+  position: relative;
+  background-color: white;
+  width: 1000px;
+  height: 40px;
+  top: 25px;
+  align: center;
+  margin: 0 auto;
+}
 
+/* Number of results bar */
+#results-num {
+  display: inline-block;
+  position: relative;
+  top: 5px;
+  left: 18%;
+  height: 60%;
+  line-height: 25px;
+  width: 300px;
+  font-size: 18px;
+  background-color: #ffc15e;
+  border-radius: 7px;
+  text-align: center;
+  vertical-align: bottom;
+  font-family: sans-serif;
+  color: white;
+}
 
+/* Container for the list of results */
+#list-container {
+  position: relative;
+  background-color: white;
+  top: 25px;
+  width: 700px;
+  height: 75%;
+  align: center;
+  margin: 0 auto;
+  overflow-y: scroll;
+}
 
-/* Add in the box that says how many results were
-returned.  */
+/* List of the results */
+#list {
+  list-style-type: none;
+  line-height: 5px;
+  font-family: sans-serif;
+}
 
+/* Elements of the list */
+#list-el {
+  padding: 0 0 10px 0;
+}
 
-/* Create a list that will hold the json object
-and make it scollable. List can scroll without
-the entire page scrolling.
- */
+/* The scrollbar for the list of results */
+div::-webkit-scrollbar {
+  background-color: white;
+  border-radius: 10px;
+  width: 20px;
+}
+div::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: #efefef;
+}
+div::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #4f9fad;
+}
+div::-webkit-scrollbar-thumb:hover {
+  background: #2f808e;
+}
+
+/* Numbers of pages */
+#page-container {
+  position: relative;
+  background-color: white;
+  top: 27px;
+  width: 700px;
+  height: 5%;
+  align: center;
+  margin: 0 auto;
+}
+
+/* previous button */
+#prev {
+  border: 2px #cccccc solid;
+  color: #4f9fad;
+  border-radius: 10px;
+  top: 20px;
+  left: 20%;
+  height: 100%;
+  width: 75px;
+  float: left;
+  margin-left: 35%;
+  font-family: sans-serif;
+  font-size: 22px;
+  text-align: center;
+  line-height: 50px;
+}
+
+#prev:hover {
+  background-color: #e0e0e0;
+}
+
+/* next button */
+#next {
+  border: 2px #cccccc solid;
+  color: #4f9fad;
+  border-radius: 10px;
+  top: 20px;
+  left: 40%;
+  height: 100%;
+  width: 75px;
+  float:left;
+  margin-left: 10px;
+  font-family: sans-serif;
+  font-size: 22px;
+  text-align: center;
+  line-height: 50px;
+}
+
+#next:hover {
+  background-color: #e0e0e0;
+}
