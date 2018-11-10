@@ -1,6 +1,6 @@
 body {
   background-color: white;
-
+  overflow: scroll;
 }
 
 /* Background contains the whole page */
@@ -14,7 +14,7 @@ body {
 #top-row {
   position: relative;
   background-color: white;
-  width: 900px;
+  width: 1000px;
   height: 100px;
   top: 25px;
   align: center;
@@ -60,3 +60,15 @@ body {
   height: 100%;
   width: height;
 }
+
+
+
+
+/* Add in the box that says how many results were
+returned.  */
+
+
+/* Create a list that will hold the json object
+and make it scollable. List can scroll without
+the entire page scrolling.
+ */
