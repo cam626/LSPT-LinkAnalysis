@@ -1,6 +1,7 @@
 #include <iostream>
 #include "listener.h"
 #include "pistache/endpoint.h"
+#include "signal.h"
 
 using namespace std;
 
@@ -14,6 +15,7 @@ int main() {
     server.setHandler(Http::make_handler<Listener>());
     server.serve();
 
+    std::cout << "Shutting down server..." << std::endl << std::flush;
     server.shutdown();
 
     return 0;
