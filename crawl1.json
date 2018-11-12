@@ -1,0 +1,6 @@
+{
+    "Robots": "True",
+    "Disallowed": [
+        "/search"
+    ]
+}
