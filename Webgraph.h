@@ -16,7 +16,7 @@ public:
     Node(const std::string &url_) : url(url_) {}
     /* Accessor */
     const std::string& getUrl() const { return url; }
-    const std::vector<Node>& getChildren() const;
+    const std::vector<Node>& getChildren() const { return children; }
     /* Modifier */
     void addChild(const Node &child_) { children.push_back(child_); }
 };
@@ -24,17 +24,19 @@ public:
 /* Webgraph class */
 class Webgraph {
 private:
-    std::set<Node> all_links;
+    std::vector<Node> all_links;
     std::map< Node, std::vector<Node> > adj_matrix;
 
 public:
     // Webgraph();
     // ~Webgraph();
     /* Accessor */
-    const std::set<Node>& getAllLinks() const { return all_links; }
+    const std::vector<Node>& getAllLinks() const { return all_links; }
     bool hasLink(const std::string &url_) const;
     /* Modifier */
     void addLink(const std::string &url_);
     void addConnection(const std::string &from_url, const std::string &to_url);
 };
 #endif
+
+/* TODO: operator< overload for node class */
