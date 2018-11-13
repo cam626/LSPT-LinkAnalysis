@@ -98,10 +98,8 @@ body {
   background-color: white;
   top: 25px;
   width: 700px;
-  height: 75%;
   align: center;
   margin: 0 auto;
-  overflow-y: scroll;
 }
 
 /* List of the results */
@@ -117,20 +115,20 @@ body {
 }
 
 /* The scrollbar for the list of results */
-div::-webkit-scrollbar {
+body::-webkit-scrollbar {
   background-color: white;
   border-radius: 10px;
   width: 20px;
 }
-div::-webkit-scrollbar-track {
+body::-webkit-scrollbar-track {
   border-radius: 10px;
   background: #efefef;
 }
-div::-webkit-scrollbar-thumb {
+body::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background: #4f9fad;
 }
-div::-webkit-scrollbar-thumb:hover {
+body::-webkit-scrollbar-thumb:hover {
   background: #2f808e;
 }
 
@@ -138,11 +136,12 @@ div::-webkit-scrollbar-thumb:hover {
 #page-container {
   position: relative;
   background-color: white;
-  top: 27px;
+  bottom: 10px;
   width: 700px;
   height: 5%;
   align: center;
   margin: 0 auto;
+  padding-top: 5px;
 }
 
 /* previous button */
