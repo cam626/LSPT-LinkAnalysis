@@ -27,28 +27,29 @@ body {
   top: -20px;
   left: 7%;
   width: 60%;
-  height: 30px;
+  height: 35px;
   border-radius: 15px;
   border-color: black;
   text-align: left;
+  font-size: 15px;
   color: black;
-  border: 1px #000000 solid;
-  padding: 5px 5px 5px 30px;
+  border: 0px #000000 solid;
+  padding: 5px 5px 5px 40px;
   background: #f2f2f2 url("/SearchIcon.png") left no-repeat;
-  background-size: 18px 18px;
-  background-position: 8px 5px;
+  background-size: 20px 20px;
+  background-position: 10px 8px;
 }
 
 /* Go button next to the search bar */
 #go-button {
   position: relative;
   left: 10%;
-  top: -22px;
-  width: 80px;
-  height: 40px;
+  top: -20px;
+  width: 100px;
+  height: 35px;
   border-radius: 5px;
   border: 2px solid #e0e0e0;
-  background: #f2f2f2;
+  background: #ffffff;
   font-size: 20px;
   z-index: 1;
 }
