@@ -5,29 +5,54 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>RPEye</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="stylesheet" type="text/css" media="screen" href="/main.css" />
-  <script src="/main.js"></script>
+  <!-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/> -->
+  <!-- <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/> -->
+  <link rel="stylesheet" type="text/css" media="screen" href="../styles/main.css" />
+  <script src="./main.js"></script>
 </head>
 
 <body>
-  <div style="height:200px; background:blue">
+  <div style="height:300px;">
   </div>
 
-  <div style="height:150px; background:grey; margin-top:50px">
-    <div class="input-box pl-0">
-      <input class="form-control my-0 py-1 red-border" type="text" placeholder="Search" aria-label="Search">
-      <div class="input-group-append">
-        <span class="input-group-text red lighten-3" id="basic-text1"><i class="fa fa-search text-grey" aria-hidden="true"></i></span>
-      </div>
-    </div>
+  <div style="height:150px;">
+    <input type="text" placeholder="Searched Query" id="searchbar">
+    <button type="button" id="go-button" onclick="startSearch()">GO</button>
   </div>
 
-  <img style ="width:200px; height:300px" src="../resources/Goldschmidt.jpg"/>
+  <div style="display: flex; justify-content: center;">
+    <img style="width:277px; height:277px" src="../resources/Goldschmidt.jpg" />
+  </div>
+
+  <script>
+    // Get the input field
+    const input = document.getElementById("searchbar");
+    // Execute a function when the user releases a key on the keyboard
+    input.addEventListener("keyup", function(event) {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Number 13 is the "Enter" key on the keyboard
+      if (event.keyCode === 13) {
+        // Trigger the button element with a click
+        document.getElementById("go-button").click();
+      }
+    });
+
+    function startSearch() {
+      const search = document.getElementById('searchbar');
+      const query = search.value;
+      console.log(query);
+      if (query.length==0){
+        console.log('Empty query');
+      }
+      else{
+        console.log('Query: '+query);
+        window.location = './results.html';
+      }
+    }
+  </script>
 
 </body>
 
