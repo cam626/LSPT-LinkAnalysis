@@ -22,14 +22,15 @@ public:
     // Accessor
     const std::string& getUrl() const;
     float getRank() const;
-    const std::vector<Node>& getChildren() const;
-    bool hasChild(const Node &child_) const;
-    const std::vector<Node>& getParents() const;
-    bool hasParent(const Node &parent_) const;
     const std::string& getTimestamp() const;
+    const std::vector<Node>& getChildren() const;
+    const std::vector<Node>& getParents() const;
+    bool hasChild(const Node &child_) const;
+    bool hasParent(const Node &parent_) const;
+
     // Modifier
-    void addChild(const Node &child_);
-    void addParent(const Node &parent_);
+    bool addChild(const Node &child_);
+    bool addParent(const Node &parent_);
     void updateRank(const int rank_);
     void updateTimestamp(const std::string &timestamp_);
     // Operator

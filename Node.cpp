@@ -24,8 +24,16 @@ float Node::getRank() const {
     return rank;
 }
 
+const std::string& Node::getTimestamp() const {
+    return timestamp;
+}
+
 const vector<Node>& Node::getChildren() const {
     return children;
+}
+
+const std::vector<Node>& Node::getParents() const {
+    return parents;
 }
 
 bool Node::hasChild(const Node &child_) const {
@@ -37,10 +45,6 @@ bool Node::hasChild(const Node &child_) const {
     return false;
 }
 
-const std::vector<Node>& Node::getParents() const {
-    return parents;
-}
-
 bool Node::hasParent(const Node &parent_) const {
     for (int i=0; i<parents.size(); ++i) {
         if (parents[i].getUrl() == parent_.getUrl()) {
@@ -50,18 +54,16 @@ bool Node::hasParent(const Node &parent_) const {
     return false;
 }
 
-const std::string& Node::getTimestamp() const {
-    return timestamp;
-}
-
-void Node::addChild(const Node &child_) {
-    if (hasChild(child_)) { return; }
+bool Node::addChild(const Node &child_) {
+    if (hasChild(child_)) { return false; }
     children.push_back(child_);
+    return true;
 }
 
-void Node::addParent(const Node &parent_) {
-    if (hasParent(parent_)) { return; }
+bool Node::addParent(const Node &parent_) {
+    if (hasParent(parent_)) { return false; }
     parents.push_back(parent_);
+    return true;
 }
 
 void Node::updateRank(const int rank_) {
