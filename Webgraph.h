@@ -15,12 +15,12 @@
 
 class Webgraph {
 private:
-    std::vector<Node> all_links;
+    std::vector<Node> all_nodes;
     std::map< Node, std::vector<Node> > adj_matrix;
 
 public:
     // Accessor
-    const std::vector<Node>& getAllLinks() const;
+    const std::vector<Node>& getAllNodes() const;
     bool hasLink(const std::string &url_) const;
     const Node& getNodeFromLink(const std::string &url_) const;
     const std::vector<Node>& getIncomingNodes(const Node &n) const;

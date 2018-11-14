@@ -8,12 +8,14 @@
 
 #include "Node.h"
 
+typedef unsigned int uint;
+
 using namespace std;
 
 Node::Node(const string &url_ ) {
     url = url_;
-    rank = 0; // TODO: ? initial value
-    // TODO: initialize timestamp
+    rank = 1;
+    timestamp = "";
 }
 
 const string& Node::getUrl() const {
@@ -37,7 +39,7 @@ const std::vector<Node>& Node::getParents() const {
 }
 
 bool Node::hasChild(const Node &child_) const {
-    for (int i=0; i<children.size(); ++i) {
+    for (uint i=0; i<children.size(); ++i) {
         if (children[i].getUrl() == child_.getUrl()) {
             return true;
         }
@@ -46,7 +48,7 @@ bool Node::hasChild(const Node &child_) const {
 }
 
 bool Node::hasParent(const Node &parent_) const {
-    for (int i=0; i<parents.size(); ++i) {
+    for (uint i=0; i<parents.size(); ++i) {
         if (parents[i].getUrl() == parent_.getUrl()) {
             return true;
         }
@@ -74,7 +76,10 @@ void Node::updateTimestamp(const std::string &timestamp_) {
     timestamp = timestamp_;
 }
 
-
 bool Node::operator<(const Node &n) const {
     return url < n.getUrl();
+}
+
+bool Node::operator==(const Node &n) const {
+    return url == n.getUrl();
 }

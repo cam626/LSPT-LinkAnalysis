@@ -35,5 +35,6 @@ public:
     void updateTimestamp(const std::string &timestamp_);
     // Operator
     bool operator<(const Node &n) const;
+    bool operator==(const Node &n) const;
 };
 #endif
