@@ -134,18 +134,33 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 		rapidjson::Value::ConstValueIterator itr;
 		for (itr = disallowed.Begin(); itr != disallowed.End(); ++itr)
 		{
-			this->blacklist.push_back(domain + itr->GetString());
+			this->blacklist.insert(domain + itr->GetString());
 		}
 
-		response.send(Http::Code ::Ok, "Blacklist successfully updated.\n");
+		response.send(Http::Code::Ok, "Blacklist successfully updated.\n");
 
-		this->processQueue();
+		if (this->queue.size() != 0)
+			this->processQueue();
 	}
 	else if (doc.HasMember("BadURLs"))
 	{
 		// This section should be from the Crawling team. It should be a list of URLs that returned 404 or other errors
 		// during crawling.
-		// TODO: Implement this section
+
+		if (!doc["BadURLs"].IsArray())
+		{
+			response.send(Http::Code::Bad_Request, "Required fields missing.\n");
+			return;
+		}
+
+		const rapidjson::Value &broken = doc["BadURLs"];
+		rapidjson::Value::ConstValueIterator itr;
+		for (itr = broken.Begin(); itr != broken.End(); ++itr)
+		{
+			// TODO: set timeout on node in the graph
+		}
+
+		response.send(Http::Code::Ok, "Node status updated.\n");
 	}
 	else
 	{
@@ -155,7 +170,8 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 }
 
 /*
-	Processes the entire queue and sends POST requests to the crawling team of what to crawl next
+	Processes the entire queue and sends POST requests to the crawling team of what to 
+	crawl next.
 
 	Returns: The number of links sent to the crawling team
 */
@@ -163,32 +179,31 @@ int Listener::processQueue()
 {
 	// Make sure there is a connection with the crawling team
 	int id = this->sender.addConnection(CRAWL_HOST, CRAWL_PORT);
-
-	int count = 0; // Count how many URLs were processed
+	int response = -1;
 	std::unordered_map<std::string, std::vector<std::string>>::iterator itr;
 	for (itr = this->queue.begin(); itr != this->queue.end(); ++itr)
 	{
 		std::vector<std::string> batch;
-		std::vector<std::string> URLs = itr->second;
-		for (size_t i = 0; i < URLs.size(); ++i)
+		for (size_t i = 0; i < itr->second.size(); ++i)
 		{
-			if (allowedURL(URLs[i]))
+			if (allowedURL(itr->second[i]))
 			{
 				/* 
 					TODO: Use information from graph to check timestamp
 					      and add to batch if enough time has passed
 				*/
-				batch.push_back(URLs[i]);
+				batch.push_back(itr->second[i]);
 			}
 		}
-		// TODO: send batch
-		this->sender.sendBatch(id, batch);
+		itr->second.erase(itr->second.begin(), itr->second.end());
+
+		response = this->sender.sendBatch(id, batch);
 	}
-	return count;
+	return response;
 }
 
 /*
-	Checks if a URL is allowed by the blacklist
+	Checks if a URL is allowed by the blacklist.
 
 	Parameters:
 		- std::string URL: A URL
@@ -197,9 +212,10 @@ int Listener::processQueue()
 */
 bool Listener::allowedURL(std::string URL)
 {
-	for (size_t i = 0; i < this->blacklist.size(); ++i)
+	std::set<std::string>::iterator itr;
+	for (itr = this->blacklist.begin(); itr != this->blacklist.end(); ++itr)
 	{
-		std::string temp = stripHttp(this->blacklist[i]);
+		std::string temp = stripHttp(*itr);
 		std::string mod_URL = stripHttp(URL);
 		if (mod_URL.substr(0, temp.size()) == temp)
 		{

@@ -1,5 +1,15 @@
 #include "Sender.h"
 
+/*
+	Finds a connection corresponding to the given information.
+
+	Parameters:
+		- std::string host: The host of the connection to search for
+		- int port: The port of the connection to search for
+
+	Returns: The socket file descriptor corresponding to the described connection
+				if it exists, -1 otherwise.
+*/
 int Sender::findConnection(std::string host, int port)
 {
 	std::pair<std::string, int> temp;
@@ -16,6 +26,14 @@ int Sender::findConnection(std::string host, int port)
 	return -1;
 }
 
+/*
+	Finds a connection that corresponds to the socket given.
+
+	Parameters:
+		- int sock: The socket to search for
+
+	Returns: The connection information corresponding to the given socket.
+*/
 std::pair<std::string, int> Sender::findConnectionBySocket(int sock)
 {
 	if (this->connections.find(sock) != this->connections.end())
@@ -28,6 +46,16 @@ std::pair<std::string, int> Sender::findConnectionBySocket(int sock)
 	return temp;
 }
 
+/*
+	Adds a connection with the given host on the given port if it does not exist
+	or finds the connection if one already exists.
+
+	Parameters:
+		- std::string host: The host to connect to
+		- int port: The port to connect on
+
+	Returns: The socket file descriptor corresponding to the new or existing connection.
+*/
 int Sender::addConnection(std::string host, int port)
 {
 	int temp = this->findConnection(host, port);
@@ -63,6 +91,16 @@ int Sender::addConnection(std::string host, int port)
 	return sock;
 }
 
+/*
+	Sends a POST request to the crawling team with the location of a robots.txt file
+	for a specific domain.
+
+	Parameters:
+		- int sock: A previously opened socket to communicate with the crawling team
+		- std::string domain: The domain to request a robots.txt file for
+
+	Returns: The HTTP response code given in the response from the crawling team.
+*/
 int Sender::requestRobot(int sock, std::string domain)
 {
 	std::pair<std::string, int> connection = this->findConnectionBySocket(sock);
@@ -71,9 +109,21 @@ int Sender::requestRobot(int sock, std::string domain)
 
 	// TODO: handle response from Crawler
 
-	return send(sock, message.c_str(), strlen(message.c_str()), 0);
+	send(sock, message.c_str(), strlen(message.c_str()), 0);
+	return 200;
 }
 
+/*
+	Sends the next URLs that the crawling team should crawl in batches that contain URLs on
+	a single domain.
+
+	Parameters:
+		- int sock: A previously opened socket to communicate with the crawling team
+		- std::vector<std::string> batch: A list of URLs that the crawler should crawl next.
+											Should all be from the same domain.
+
+	Returns: The HTTP response code given in the response from the crawling team.
+*/
 int Sender::sendBatch(int sock, std::vector<std::string> batch)
 {
 	std::pair<std::string, int> connection = this->findConnectionBySocket(sock);

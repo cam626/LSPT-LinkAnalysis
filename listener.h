@@ -24,7 +24,7 @@ class Listener : public Http::Handler
 
   private:
 	Sender sender;
-	std::vector<std::string> blacklist;
+	std::set<std::string> blacklist;
 	std::unordered_map<std::string, std::vector<std::string>> queue;
 
 	bool allowedURL(std::string URL);
