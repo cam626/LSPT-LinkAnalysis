@@ -9,18 +9,19 @@
 
 #include "Sender.h"
 
-#define TT_HOST "127.0.0.1"
-#define TT_PORT 9877
+#define CRAWL_HOST "127.0.0.1"
+#define CRAWL_PORT 9877
 
 using namespace Pistache;
 
 class Listener : public Http::Handler
 {
-  public:
+public:
 	HTTP_PROTOTYPE(Listener);
 
 	void onRequest(const Http::Request &request, Http::ResponseWriter response);
 
-  private:
+private:
 	Sender sender;
+	std::vector<std::string> blacklist;
 };

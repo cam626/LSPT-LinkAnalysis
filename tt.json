@@ -2,6 +2,7 @@
     "Head": "www.google.com",
     "Tails": [
         "www.rpi.edu",
-        "www.bing.com"
+        "www.bing.com/page1.php",
+        "http://www.bing.com/page2.php"
     ]
 }

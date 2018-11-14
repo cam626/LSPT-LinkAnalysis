@@ -69,5 +69,7 @@ int Sender::requestRobot(int sock, std::string domain)
 	std::string message = "POST / HTTP/1.1\nUser-Agent: Link-Analysis\nContent-Type: application/json\nAccept: application/json\nHost: " +
 						  connection.first + "\n\n{\n\t'Robots': '" + domain + "/robots.txt'\n}\n";
 
+	// TODO: handle response from Crawler
+
 	return send(sock, message.c_str(), strlen(message.c_str()), 0);
 }

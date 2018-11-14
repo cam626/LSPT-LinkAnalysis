@@ -46,6 +46,26 @@ std::string domainExtractor(std::string URL)
 }
 
 /*
+	This function is used to organize a list of URLs into a map with a domain as the key
+	and a list of URLs on that domain as the value.
+
+	Parameters:
+		- std::vector<std::string> URLs: A list of URLs
+
+	Returns: A map where the keys are domains and the values are lists of URLs on the specified domain
+*/
+std::unordered_map<std::string, std::vector<std::string>> domainOrganizer(std::vector<std::string> URLs)
+{
+	std::unordered_map<std::string, std::vector<std::string>> domains;
+	for (size_t i = 0; i < URLs.size(); ++i)
+	{
+		std::string current_domain = domainExtractor(URLs[i]);
+		domains[current_domain].push_back(URLs[i]);
+	}
+	return domains;
+}
+
+/*
     This function is called by the Pistache Library each time there is data sent to our open port.
     It should parse the request into JSON and determine what to do based on the content of the request.
 
@@ -105,20 +125,34 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 		// TODO: Use head and tails to update graph
 		// TODO: Call rank updater
-		// TODO: Call sender to POST to Crawler
-		int id = this->sender.addConnection(TT_HOST, TT_PORT);
+
+		int id = this->sender.addConnection(CRAWL_HOST, CRAWL_PORT);
 		if (id != -1)
 		{
-			for (size_t i = 0; i < tails.size(); ++i)
+			std::unordered_map<std::string, std::vector<std::string>> domains = domainOrganizer(tails);
+			std::unordered_map<std::string, std::vector<std::string>>::iterator itr;
+			for (itr = domains.begin(); itr != domains.end(); ++itr)
 			{
-				this->sender.requestRobot(id, domainExtractor(tails[i]));
+				this->sender.requestRobot(id, domainExtractor(itr->first));
 			}
 		}
 	}
 	else if (doc.HasMember("Robots"))
 	{
 		// This section should be from the Crawling team. It should be a response to our request for a robots.txt file
-		// TODO: Implement this section
+		if (!doc.HasMember("Disallow") || !doc["Disallow"].IsArray() || !doc.HasMember("Domain"))
+		{
+			response.send(Http::Code::Bad_Request, "Required fields missing.\n");
+			return;
+		}
+
+		std::string domain = doc["Domain"].GetString();
+		const rapidjson::Value &disallowed = doc["Disallow"];
+		rapidjson::Value::ConstValueIterator itr;
+		for (itr = disallowed.Begin(); itr != disallowed.End(); ++itr)
+		{
+			this->blacklist.push_back(domain + itr->GetString());
+		}
 	}
 	else if (doc.HasMember("BadURLs"))
 	{
