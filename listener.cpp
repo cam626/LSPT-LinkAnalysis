@@ -29,24 +29,6 @@ std::string stripHttp(std::string URL)
 	return URL;
 }
 
-int regexMatch(const char *string, char *pattern)
-{
-	int status;
-	regex_t re;
-
-	if (regcomp(&re, pattern, REG_EXTENDED | REG_NOSUB) != 0)
-	{
-		return (0); /* report error */
-	}
-	status = regexec(&re, string, (size_t)0, NULL, 0);
-	regfree(&re);
-	if (status != 0)
-	{
-		return (0); /* report error */
-	}
-	return (1);
-}
-
 /*
     Extracts the domain from a given URL. This assumes that anything
     after an http prefix and before the next '/' is the domain.
@@ -74,6 +56,7 @@ std::string domainExtractor(std::string URL)
 */
 void Listener::onRequest(const Http::Request &request, Http::ResponseWriter response)
 {
+
 	// Copy the JSON from the request to a c-string to be used in the rapidJSON library
 	char json[1024];
 	bzero(&json, 1024);
@@ -89,18 +72,10 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 		return;
 	}
 
-	Http::Client client;
-
-	auto opts = Http::Client::options()
-					.threads(1)
-					.maxConnectionsPerHost(8);
-	client.init(opts);
-
 	// Determine what was recieved
 	if (doc.HasMember("Head"))
 	{
 		// This section should be from the Text Transformation team
-		response.send(Http::Code::Ok, domainExtractor(doc["Head"].GetString()) + "\n");
 
 		if (!doc["Head"].IsString())
 		{
@@ -131,6 +106,14 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 		// TODO: Use head and tails to update graph
 		// TODO: Call rank updater
 		// TODO: Call sender to POST to Crawler
+		int id = this->sender.addConnection(TT_HOST, TT_PORT);
+		if (id != -1)
+		{
+			for (size_t i = 0; i < tails.size(); ++i)
+			{
+				this->sender.requestRobot(id, domainExtractor(tails[i]));
+			}
+		}
 	}
 	else if (doc.HasMember("Robots"))
 	{
