@@ -16,12 +16,16 @@ using namespace Pistache;
 
 class Listener : public Http::Handler
 {
-public:
+  public:
 	HTTP_PROTOTYPE(Listener);
 
 	void onRequest(const Http::Request &request, Http::ResponseWriter response);
+	int processQueue();
 
-private:
+  private:
 	Sender sender;
 	std::vector<std::string> blacklist;
+	std::unordered_map<std::string, std::vector<std::string>> queue;
+
+	bool allowedURL(std::string URL);
 };

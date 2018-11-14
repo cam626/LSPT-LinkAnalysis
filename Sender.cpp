@@ -73,3 +73,21 @@ int Sender::requestRobot(int sock, std::string domain)
 
 	return send(sock, message.c_str(), strlen(message.c_str()), 0);
 }
+
+int Sender::sendBatch(int sock, std::vector<std::string> batch)
+{
+	std::pair<std::string, int> connection = this->findConnectionBySocket(sock);
+	std::string message = "POST / HTTP/1.1\nUser-Agent: Link-Analysis\nContent-Type: application/json\nAccept: application/json\nHost: " +
+						  connection.first + "\n\n{\n\t'URLs': [";
+
+	for (size_t i = 0; i < batch.size() - 1; ++i)
+	{
+		message += "'" + batch[i] + "',";
+	}
+	message += "'" + batch[batch.size() - 1] + "'";
+
+	// TODO: handle response from Crawler
+
+	message += "]\n}\n";
+	return send(sock, message.c_str(), strlen(message.c_str()), 0);
+}

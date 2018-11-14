@@ -3,6 +3,7 @@
 #include <string.h>
 #include <vector>
 #include <unordered_map>
+#include <set>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -15,6 +16,7 @@ class Sender
 	int findConnection(std::string host, int port);
 	std::pair<std::string, int> findConnectionBySocket(int sock);
 	int requestRobot(int sock, std::string domain);
+	int sendBatch(int sock, std::vector<std::string> batch);
 
   private:
 	std::unordered_map<int, std::pair<std::string, int>> connections;
