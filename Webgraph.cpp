@@ -29,6 +29,16 @@ const Node& Webgraph::getNodeFromLink(const std::string &url_) const {
     }
 }
 
+// Assume the node exists
+const std::vector<Node>& Webgraph::getIncomingNodes(const Node &n) const {
+    return n.getParents();
+}
+
+// Assume the node exists
+const std::vector<Node>& Webgraph::getOutgoingNodes(const Node &n) const {
+    return n.getChildren();
+}
+
 bool Webgraph::addLink(const string &url_) {
     if (hasLink(url_)) { return false; }
     Node n(url_);
