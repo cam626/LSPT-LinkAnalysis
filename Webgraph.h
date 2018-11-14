@@ -10,6 +10,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <queue>
 
 #include "Node.h"
 
@@ -17,6 +18,7 @@ class Webgraph {
 private:
     std::vector<Node> all_nodes;
     std::map< Node, std::vector<Node> > adj_matrix;
+    void updateHelper(queue<Node> work_queue);
 
 public:
     // Accessor
@@ -25,6 +27,7 @@ public:
     const Node& getNodeFromLink(const std::string &url_) const;
     const std::vector<Node>& getIncomingNodes(const Node &n) const;
     const std::vector<Node>& getOutgoingNodes(const Node &n) const;
+    const std::map< std::string, float>& getAllRanks() const;
     // TODO:
     //   1. get all ranks
     //   2. check timestamp
@@ -32,5 +35,6 @@ public:
     // Modifier
     bool addLink(const std::string &url_);
     bool addConnection(const std::string &from_url, const std::string &to_url);
+    void updateRank(const std::string &url_);
 };
 #endif
