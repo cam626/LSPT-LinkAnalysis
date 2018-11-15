@@ -9,7 +9,11 @@ router.get('/query', (req, res) => {
     for (let i = 0; i < docObj.docs; i++) {
       docIds.push(docObj[i].docid);
     }
-    api.getPages(docIds, res.send);
+    try {
+      api.getPages(docIds, res.send);
+    } catch (error) {
+      res.send([]);
+    }
   });
 });
 
