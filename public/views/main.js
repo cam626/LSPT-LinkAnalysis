@@ -1,5 +1,5 @@
 /** Append keypress event to the input box */
-$('document').ready(function(){
+$('document').ready(function() {
   const input = document.getElementById('searchbar');
   input.addEventListener('keyup', function(event) {
     // Cancel the default action, if needed
@@ -10,8 +10,6 @@ $('document').ready(function(){
     }
   });
 });
-
-
 
 /** Validate the search query and pass the query to the result page */
 function startSearch() {
