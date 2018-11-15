@@ -15,7 +15,7 @@ int Sender::findConnection(std::string host, int port)
 	std::pair<std::string, int> temp;
 	temp.first = host;
 	temp.second = port;
-	std::unordered_map<int, std::pair<std::string, int>>::iterator itr;
+	std::map<int, std::pair<std::string, int>>::iterator itr;
 	for (itr = this->connections.begin(); itr != this->connections.end(); ++itr)
 	{
 		if (itr->second == temp)
@@ -140,4 +140,23 @@ int Sender::sendBatch(int sock, std::vector<std::string> batch)
 
 	message += "]\n}\n";
 	return send(sock, message.c_str(), strlen(message.c_str()), 0);
+}
+
+int Sender::sendRanks(int sock, std::map<std::string, std::vector<float>> ranks)
+{
+	std::pair<std::string, int> connection = this->findConnectionBySocket(sock);
+	std::string message = "POST / HTTP/1.1\nUser-Agent: Link-Analysis\nContent-Type: application/json\nAccept: application/json\nHost: " +
+						  connection.first + "\n\n[\n";
+
+	std::map<std::string, std::vector<float>>::iterator itr;
+	for (itr = ranks.begin(); itr != ranks.end(); ++itr)
+	{
+		message += "\t{\n\t\t'url': '" + itr->first + "',\n\t\t'rank': '" + std::to_string(itr->second[0]) + "'\n},\n";
+	}
+
+	message += "\n]\n";
+	// TODO: handle response from Crawler
+
+	send(sock, message.c_str(), strlen(message.c_str()), 0);
+	return 200;
 }

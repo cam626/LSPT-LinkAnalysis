@@ -102,15 +102,21 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 			std::string domain = domainExtractor(itr->GetString());
 			this->queue[domain].push_back(itr->GetString());
 			current_domains.insert(domain);
+
+			// Update graph
+			this->graph.addConnection(head, itr->GetString());
 		}
 
 		// Send response to client that the data was correctly parsed
 		response.send(Http::Code::Ok, "JSON successfully parsed.\n");
 
-		// TODO: Use head and tails to update graph
-		// TODO: Call rank updater
+		this->graph.updateRank(head);
 
-		int id = this->sender.addConnection(CRAWL_HOST, CRAWL_PORT);
+		int id = this->sender.addConnection(INDEX_HOST, INDEX_PORT);
+		this->sender.sendRanks(id, this->graph.getAllRanks());
+
+		// Send next to crawl to crawling team
+		id = this->sender.addConnection(CRAWL_HOST, CRAWL_PORT);
 		if (id != -1)
 		{
 			std::set<std::string>::iterator itr;
@@ -180,7 +186,7 @@ int Listener::processQueue()
 	// Make sure there is a connection with the crawling team
 	int id = this->sender.addConnection(CRAWL_HOST, CRAWL_PORT);
 	int response = -1;
-	std::unordered_map<std::string, std::vector<std::string>>::iterator itr;
+	std::map<std::string, std::vector<std::string>>::iterator itr;
 	for (itr = this->queue.begin(); itr != this->queue.end(); ++itr)
 	{
 		std::vector<std::string> batch;

@@ -1,9 +1,6 @@
 {
-    "Head": "www.google.com",
+    "Head": "www.b.com",
     "Tails": [
-        "www.rpi.edu",
-        "www.bing.com/page1.php",
-        "http://www.bing.com/page2.php",
-        "https://www.bing.com/search?test_search"
+        "www.c.com"
     ]
 }

@@ -2,7 +2,7 @@
 #include <string>
 #include <string.h>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include <set>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -17,7 +17,8 @@ class Sender
 	std::pair<std::string, int> findConnectionBySocket(int sock);
 	int requestRobot(int sock, std::string domain);
 	int sendBatch(int sock, std::vector<std::string> batch);
+	int sendRanks(int sock, std::map<std::string, std::vector<float>> ranks);
 
   private:
-	std::unordered_map<int, std::pair<std::string, int>> connections;
+	std::map<int, std::pair<std::string, int>> connections;
 };
