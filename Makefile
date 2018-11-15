@@ -1,2 +1,2 @@
-All: Webgraph.cpp Node.cpp Test_Webgraph.cpp
-	g++ *.cpp -o test.out -Wall -g -std=c++11
+all: main.cpp listener.cpp Sender.cpp Webgraph.cpp Node.cpp
+	g++ -o listener.out *.cpp -no-pie -lpistache -pthread -Wall -g -std=c++11

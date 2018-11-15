@@ -16,19 +16,21 @@
 #include "Node.h"
 
 class Webgraph {
-private:
+  private:
+    float rank_threshold = 0.0001;
+    float damping_factor = 0.85;
     std::vector<Node> all_nodes;
-    std::map< Node, std::vector<Node> > adj_matrix;
-    void updateHelper(std::queue<Node> work_queue);
+    void updateHelper(std::queue<unsigned int> work_queue);
 
-public:
+  public:
     // Accessor
-    const std::vector<Node>& getAllNodes() const;
+    const std::vector<Node> &getAllNodes() const;
     bool hasLink(const std::string &url_) const;
-    const Node& getNodeFromLink(const std::string &url_) const;
-    const std::vector<Node>& getIncomingNodes(const Node &n) const;
-    const std::vector<Node>& getOutgoingNodes(const Node &n) const;
-    const std::map< std::string, std::vector<float> > getAllRanks() const;
+    const Node &getNodeFromLink(const std::string &url_) const;
+    unsigned int getNodeIndexFromLink(const std::string &url_) const;
+    const std::vector<std::string> &getIncomingLinks(const Node &n) const;
+    const std::vector<std::string> &getOutgoingLinks(const Node &n) const;
+    const std::map<std::string, std::vector<float> > getAllRanks() const;
     // TODO:
     //   1. check timestamp
 
