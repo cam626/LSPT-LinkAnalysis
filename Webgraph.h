@@ -15,7 +15,6 @@
 
 #include "Node.h"
 
-
 class Webgraph {
   private:
     float rank_threshold = 0.0001;
@@ -29,8 +28,6 @@ class Webgraph {
     bool hasLink(const std::string &url_) const;
     const Node &getNodeFromLink(const std::string &url_) const;
     unsigned int getNodeIndexFromLink(const std::string &url_) const;
-    // const std::vector<Node> &getIncomingNodes(const Node &n) const;
-    // const std::vector<Node> &getOutgoingNodes(const Node &n) const;
     const std::vector<std::string> &getIncomingLinks(const Node &n) const;
     const std::vector<std::string> &getOutgoingLinks(const Node &n) const;
     const std::map<std::string, std::vector<float> > getAllRanks() const;
