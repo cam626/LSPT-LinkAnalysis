@@ -18,7 +18,7 @@ class Webgraph {
 private:
     std::vector<Node> all_nodes;
     std::map< Node, std::vector<Node> > adj_matrix;
-    void updateHelper(queue<Node> work_queue);
+    void updateHelper(std::queue<Node> work_queue);
 
 public:
     // Accessor
@@ -27,7 +27,7 @@ public:
     const Node& getNodeFromLink(const std::string &url_) const;
     const std::vector<Node>& getIncomingNodes(const Node &n) const;
     const std::vector<Node>& getOutgoingNodes(const Node &n) const;
-    const std::map< std::string, vector<float> >& getAllRanks() const;
+    const std::map< std::string, std::vector<float> >& getAllRanks() const;
     // TODO:
     //   1. check timestamp
 
