@@ -154,12 +154,12 @@ void Webgraph::updateHelper(queue<uint> work_queue) {
         int outgoing_number = getOutgoingLinks(all_nodes[getNodeIndexFromLink(parents[i])]).size();
         new_rank += from_rank / outgoing_number;
     }
-    new_rank = 0.15 + 0.85 * new_rank;
+    new_rank = (1 - damping_factor) + damping_factor * new_rank;
     float old_rank = all_nodes[index_current].getRank();
     //update the rank
     all_nodes[index_current].updateRank(new_rank);
     //check converge, threshold current set to 0.01%
-    if (float(abs(new_rank - old_rank) / old_rank) < 0.0001) {
+    if (float(abs(new_rank - old_rank) / old_rank) < rank_threshold) {
         //converged, current node's children would not add to queue
         updateHelper(work_queue);
     }

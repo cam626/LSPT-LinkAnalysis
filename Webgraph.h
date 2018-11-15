@@ -18,6 +18,8 @@
 
 class Webgraph {
   private:
+    float rank_threshold = 0.0001;
+    float damping_factor = 0.85;
     std::vector<Node> all_nodes;
     void updateHelper(std::queue<unsigned int> work_queue);
 
