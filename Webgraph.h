@@ -27,7 +27,7 @@ public:
     const Node& getNodeFromLink(const std::string &url_) const;
     const std::vector<Node>& getIncomingNodes(const Node &n) const;
     const std::vector<Node>& getOutgoingNodes(const Node &n) const;
-    const std::map< std::string, std::vector<float> >& getAllRanks() const;
+    const std::map< std::string, std::vector<float> > getAllRanks() const;
     // TODO:
     //   1. check timestamp
 
