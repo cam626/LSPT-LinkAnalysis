@@ -1,0 +1,7 @@
+{
+	"Head": "www.a.com",
+	"Tails": [
+		"www.c.com",
+		"www.b.com"
+	]
+}

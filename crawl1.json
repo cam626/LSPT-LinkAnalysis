@@ -1,0 +1,7 @@
+{
+    "Robots": "True",
+    "Domain": "www.bing.com",
+    "Disallowed": [
+        "/search"
+    ]
+}

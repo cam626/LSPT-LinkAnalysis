@@ -31,10 +31,10 @@ void test_node(vector<Node> nodes) {
 
     cout << "Testing updated ranks ...\t\t";
     for (uint i=0; i<nodes.size(); ++i) {
-        nodes[i].updateRank(i*1.0);
+        nodes[i].updateRank(i);
     }
     for (uint i=0; i<nodes.size(); ++i) {
-        assert (nodes[i].getRank() == i*1.0);
+        assert (nodes[i].getRank() == i);
     }
     cout << "Pass" << endl;
 
@@ -83,10 +83,6 @@ void test_webgraph(vector<string> links, vector<Node> nodes) {
     Webgraph graph = Webgraph();
     vector<Node> all_nodes;
 
-    for (uint i=0; i<nodes.size(); ++i) {
-        nodes[i].updateRank(1);
-    }
-
     cout << "Testing hasLink function ...\t\t";
     assert (graph.hasLink(links[0]) == false);
     cout << "Pass" << endl;
@@ -109,27 +105,6 @@ void test_webgraph(vector<string> links, vector<Node> nodes) {
     assert (n == nodes[0]);
     assert ( (n == nodes[1]) == false );
     cout << "Pass" << endl;
-
-    cout << "Testing addConnection function ...\t";
-    graph.addConnection(nodes[0].getUrl(), nodes[1].getUrl());
-    cout << "Pass" << endl;
-
-    Webgraph graph2 = Webgraph();
-    graph2.addConnection("www.1.com", "www.2.com");
-    //graph2.addConnection("www.2.com", "www.1.com");
-    //graph2.addConnection("www.3.com", "www.1.com");
-    graph2.addConnection("www.1.com", "www.3.com");
-    graph2.addConnection("www.2.com", "www.3.com");
-    graph2.addConnection("www.3.com", "www.2.com");
-    cout << "Testing updateRanks function ...\n";
-    graph2.updateRank("www.1.com");
-    std::map<std::string, std::vector<float> > result = graph2.getAllRanks();
-    cout << result["www.1.com"][0] << endl;
-    cout << result["www.1.com"][1] << endl;
-    cout << result["www.2.com"][0] << endl;
-    cout << result["www.2.com"][1] << endl;
-    cout << result["www.3.com"][0] << endl;
-    cout << result["www.3.com"][1] << endl;
 
     cout << "All tests for Node class passed!" << endl;
 }
