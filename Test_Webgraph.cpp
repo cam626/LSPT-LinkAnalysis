@@ -31,10 +31,10 @@ void test_node(vector<Node> nodes) {
 
     cout << "Testing updated ranks ...\t\t";
     for (uint i=0; i<nodes.size(); ++i) {
-        nodes[i].updateRank(i);
+        nodes[i].updateRank(i*1.0);
     }
     for (uint i=0; i<nodes.size(); ++i) {
-        assert (nodes[i].getRank() == i);
+        assert (nodes[i].getRank() == i*1.0);
     }
     cout << "Pass" << endl;
 
