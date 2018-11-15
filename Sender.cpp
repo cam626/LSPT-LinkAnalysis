@@ -1,6 +1,7 @@
 #include "Sender.h"
 
 /*
+edit
 	Finds a connection corresponding to the given information.
 
 	Parameters:
