@@ -42,7 +42,7 @@ function getDocIds(query, callback) {
                     containing page information
  */
 function getPages(docIds, callback) {
-  let results = [];
+  const results = [];
   for (const key in docIds) {
     if (!docIds.hasOwnProperty(key)) {
       continue;
