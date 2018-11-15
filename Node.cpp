@@ -68,7 +68,7 @@ bool Node::addParent(const Node &parent_) {
     return true;
 }
 
-void Node::updateRank(const int rank_) {
+void Node::updateRank(const float rank_) {
     rank = rank_;
 }
 
