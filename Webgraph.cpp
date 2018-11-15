@@ -6,6 +6,7 @@
 #include "Node.h"
 #include "Webgraph.h"
 #include <queue>
+#include <cmath>
 
 typedef unsigned int uint;
 
