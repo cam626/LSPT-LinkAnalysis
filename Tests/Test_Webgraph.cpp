@@ -7,14 +7,14 @@
 #include <string>
 #include <iostream>
 
-#include "Node.h"
-#include "Webgraph.h"
+#include "../Node.h"
+#include "../Webgraph.h"
 
 typedef unsigned int uint;
 
 using namespace std;
 
-void test_node(vector<Node> nodes) {
+void test_node(vector<string> links, vector<Node> nodes) {
     cout << "Begin testing Node class functions ..." << endl;
     cout << "Testing getUrl function ...\t\t";
     for (uint i=0; i<nodes.size(); ++i) {
@@ -40,8 +40,7 @@ void test_node(vector<Node> nodes) {
 
     cout << "Testing hasChild function ...\t\t";
     Node n = nodes[0];
-    string url = "child";
-    Node child(url);
+    string child = "child";
     assert (n.hasChild(child) == false);
     cout << "Pass" << endl;
 
@@ -52,15 +51,14 @@ void test_node(vector<Node> nodes) {
     cout << "Pass" << endl;
 
     cout << "Testing getChildren function ...\t";
-    vector<Node> children;
+    vector<string> children;
     children.push_back(child);
     assert (n.getChildren() == children);
     cout << "Pass" << endl;
 
     cout << "Testing hasParent function ...\t\t";
     Node n1 = nodes[0];
-    string url1 = "parent";
-    Node parent(url1);
+    string parent = "parent";
     assert (n1.hasParent(parent) == false);
     cout << "Pass" << endl;
 
@@ -71,7 +69,7 @@ void test_node(vector<Node> nodes) {
     cout << "Pass" << endl;
 
     cout << "Testing getParents function ...\t\t";
-    vector<Node> parents;
+    vector<string> parents;
     parents.push_back(parent);
     assert (n1.getParents() == parents);
     cout << "Pass" << endl;
@@ -106,6 +104,27 @@ void test_webgraph(vector<string> links, vector<Node> nodes) {
     assert ( (n == nodes[1]) == false );
     cout << "Pass" << endl;
 
+    cout << "Testing addConnection function ...\t";
+    graph.addConnection(nodes[0].getUrl(), nodes[1].getUrl());
+    cout << "Pass" << endl;
+
+    Webgraph graph2 = Webgraph();
+    graph2.addConnection("www.1.com", "www.2.com");
+    //graph2.addConnection("www.2.com", "www.1.com");
+    //graph2.addConnection("www.3.com", "www.1.com");
+    graph2.addConnection("www.1.com", "www.3.com");
+    graph2.addConnection("www.2.com", "www.3.com");
+    graph2.addConnection("www.3.com", "www.2.com");
+    cout << "Testing updateRanks function ...\n";
+    graph2.updateRank("www.1.com");
+    std::map<std::string, std::vector<float> > result = graph2.getAllRanks();
+    cout << result["www.1.com"][0] << endl;
+    cout << result["www.1.com"][1] << endl;
+    cout << result["www.2.com"][0] << endl;
+    cout << result["www.2.com"][1] << endl;
+    cout << result["www.3.com"][0] << endl;
+    cout << result["www.3.com"][1] << endl;
+
     cout << "All tests for Node class passed!" << endl;
 }
 
@@ -123,7 +142,7 @@ int main() {
         node_vec.push_back(n);
     }
     assert (link_vec.size() == node_vec.size());
-    test_node(node_vec);
+    test_node(link_vec, node_vec);
     test_webgraph(link_vec, node_vec);
     return 0;
 }
