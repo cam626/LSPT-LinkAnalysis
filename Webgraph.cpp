@@ -31,23 +31,49 @@ const Node& Webgraph::getNodeFromLink(const std::string &url_) const {
     return all_nodes[i];
 }
 
+
 // Assume the provided node exists
 const std::vector<Node>& Webgraph::getIncomingNodes(const Node &n) const {
     return n.getParents();
 }
+
 
 // Assume the provided node exists
 const std::vector<Node>& Webgraph::getOutgoingNodes(const Node &n) const {
     return n.getChildren();
 }
 
-const std::map< std::string, float>& getAllRanks() const{
-    std::map< std::string, float > all_ranks;
+
+/*
+    Get the rank and normalized rank for all the URLs
+
+    Returns:
+        std::map<std::string, vector<float> >:  A map contains the URLs with 
+                                                corresponding ranks.
+            Key: std::string, URL
+            Value: vector<float>, first element is the actual rank, 
+                                second element is the normalized rank
+*/
+const std::map< std::string, vector<float> >& getAllRanks() const{
+    std::map< std::string, vector<float> > all_ranks;
+    //get all the acutal rank for each URL, and record the highest rank
+    float rank_max = 0;
     for (int i=0; i<all_links.size(); ++i){
-        all_ranks[all_links[i].getUrl()] = all_links[i].getRank();
+        all_ranks[all_links[i].getUrl()] = vector<float>();
+        all_ranks[all_links[i].getUrl()].push_back(all_links[i].getRank())
+        if (all_links[i].getRank() > rank_max){
+            rank_max = all_links[i].getRank();
+        }
+    }
+    //calculate the scale factor
+    float scale = 10/rank_max;
+    //store the normalized rank
+    for (int i=0; i<all_links.size(); ++i){
+        all_ranks[all_links[i].getUrl()].push_back(all_links[i].getRank()*scale);
     }
     return all_ranks;
 }
+
 
 bool Webgraph::addLink(const string &url_) {
     if (hasLink(url_)) { return false; }
@@ -77,7 +103,12 @@ bool Webgraph::addConnection(const std::string &from_url,
 }
 
 
-/inital the rank update, assume url exists
+/*
+    inital the rank update, assume url exists
+
+    Parameters:
+        string url_: The URL for the starting node for update
+*/
 void Webgraph::updateRank(const string &url_) {
     //inital the queue and start the iterative update
     queue<Node> work_queue;
@@ -87,8 +118,14 @@ void Webgraph::updateRank(const string &url_) {
     return;
 }
 
-//actual rank update function, iterative update the 
-//rank of the nodes until the queue is empty
+/*
+    Actual rank update function, iterative update the 
+    rank of the nodes until the queue is empty
+
+    Parameters:
+        queue<Node> work_queue: The queue that store the URL 
+                                nodes that need to be updated
+*/ 
 void Webgraph::updateHelper(queue<Node> work_queue){
     //finish condition
     if (work_queue.empty()){
