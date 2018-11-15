@@ -189,8 +189,8 @@ void Webgraph::updateHelper(queue<uint> work_queue)
     float old_rank = all_nodes[index_current].getRank();
     //update the rank
     all_nodes[index_current].updateRank(new_rank);
-    //check converge, threshold current set to 0.1%
-    if (float(abs(new_rank - old_rank) / old_rank) < 0.00001)
+    //check converge, threshold current set to 0.01%
+    if (float(abs(new_rank - old_rank) / old_rank) < 0.0001)
     {
         //converged, current node's children would not add to queue
         updateHelper(work_queue);
