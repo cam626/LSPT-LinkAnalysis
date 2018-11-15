@@ -13,7 +13,11 @@ body {
   color: black;
   border: 0px #000000 solid;
   padding: 5px 5px 5px 30px;
+<<<<<<< HEAD
   background: #f2f2f2 url("/SearchIcon.png") left no-repeat;
+=======
+  background: #f2f2f2 url("../resources/SearchIcon.png") left no-repeat;
+>>>>>>> master
   background-size: 25px 25px;
   background-position: 8px 5px;
   font-size: 15px;
