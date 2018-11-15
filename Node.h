@@ -31,7 +31,7 @@ public:
     // Modifier
     bool addChild(const Node &child_);
     bool addParent(const Node &parent_);
-    void updateRank(const int rank_);
+    void updateRank(const float rank_);
     void updateTimestamp(const std::string &timestamp_);
     // Operator
     bool operator<(const Node &n) const;
