@@ -16,4 +16,6 @@ Http.onreadystatechange = () => {
   }
 };
 
-document.getElementById('searchbar').placeholder = getQuery();
+$('document').ready(function() {
+  $('#searchbar').val(getQuery());
+});
