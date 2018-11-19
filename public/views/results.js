@@ -15,3 +15,5 @@ Http.onreadystatechange = () => {
     console.log(pages);
   }
 };
+
+document.getElementById('searchbar').placeholder = getQuery();

@@ -25,6 +25,7 @@ function testGetDocIds() {
 
 
 function testGetPages() {
+  /*
   apis.getPages([], indexingURL, (resp) => {
     //console.log(resp);
     assert(resp.length == 0);
@@ -51,5 +52,6 @@ function testGetPages() {
     //console.log(resp);
     assert(resp.length == 2);
   });
+  */
 }
 module.exports = {testGetDocIds, testGetPages};

@@ -7,53 +7,23 @@
   <title>RPEye</title>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/> -->
-  <!-- <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/> -->
   <link rel="stylesheet" type="text/css" media="screen" href="/main.css" />
   <script src="/main.js"></script>
 </head>
 
 <body>
-  <div style="height:250px;">
-    <img style="width:150px; height:150px; margin-left:50px; margin-top:20px" src="/Logo Temp.jpg" />
+  <div id="header-container">
+    <img id="main-page-logo" src="/Logo Temp.jpg" />
+  </div>
+  
+  <div id="search-bar-container">
+    <input id="searchbar" type="text" placeholder="Search here" >
+    <button id="go-button" type="button" onclick="startSearch()">GO</button>
   </div>
 
-  <div style="height:150px;">
-    <input type="text" placeholder="Searched Query" id="searchbar">
-    <button type="button" id="go-button" onclick="startSearch()">GO</button>
+  <div id="footer-container">
+    <img id="main-page-footer-image" src="/Goldschmidt.jpg" />
   </div>
-
-  <div style="display: flex; justify-content: center;">
-    <img style="width:277px; height:277px" src="/Goldschmidt.jpg" />
-  </div>
-
-  <script>
-    // Get the input field
-    const input = document.getElementById("searchbar");
-    // Execute a function when the user releases a key on the keyboard
-    input.addEventListener("keyup", function(event) {
-      // Cancel the default action, if needed
-      event.preventDefault();
-      // Number 13 is the "Enter" key on the keyboard
-      if (event.keyCode === 13) {
-        // Trigger the button element with a click
-        document.getElementById("go-button").click();
-      }
-    });
-
-    function startSearch() {
-      const search = document.getElementById('searchbar');
-      const query = search.value;
-      console.log(query);
-      if (query.length==0){
-        console.log('Empty query');
-      }
-      else{
-        console.log('Query: '+query);
-        window.location = '/results.html';
-      }
-    }
-  </script>
 
 </body>
 

@@ -6,13 +6,13 @@
   "scripts": {
     "start": "./node_modules/.bin/nodemon ./server/app.js",
     "test": "node ./server/tests",
-    "lint": "./node_modules/.bin/eslint ./public/**/*.js ./server/**/*.js"
+    "lint": "./node_modules/.bin/eslint ./public/**/*.js ./server/**/*.js",
+    "fix": "./node_modules/.bin/eslint ./public/**/*.js ./server/**/*.js --fix"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.4",
-    "pg": "^7.6.1"
+    "express": "^4.16.4"
   },
   "devDependencies": {
     "eslint": "^5.8.0",
