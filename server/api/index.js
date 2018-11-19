@@ -3,6 +3,7 @@ const {Client} = require('pg');
 
 /** Gets the results JSON for a specific query form ranking
  *  @param {String} query - the query the user searched for
+ *  @param {String} rankingURL - the URL to the ranking team
  *  @param {requestCallback} callback - called with an Object containing a pages
  *  array
  */
@@ -37,6 +38,7 @@ function getDocIds(query, rankingURL, callback) {
 
 /** Gets an array of pages JSONs from indexing
  *  @param {Array} docIds - an array of integers
+ *  @param {String} indexingURL - the URL to the indexing database
  *  @param {requestCallback} callback - called with an array
                     containing page information
  */
@@ -54,26 +56,25 @@ function getPages(docIds, indexingURL, callback) {
   client.connect((error) =>{
     if (error) {
       console.error(error.message);
+    } else {
+      console.log('connected');
     }
-    console.log('connected');
   });
 
-  let expected_len = docIds.length;
-  let actual_len = 0;
+  let expectedLen = docIds.length;
+  let actualLen = 0;
   for (let idx = 0; idx < docIds.length; idx++) {
-
     console.log(docIds[idx]);
 
     client.query(text + docIds[idx], (error, res) => {
       if (error) {
         console.log(error.message);
-        expected_len--;
-      }
-      else{
+        expectedLen--;
+      } else {
         console.log(res.rows[0]);
         results.push(res.rows[0]);
-        actual_len++;
-        if(actual_len == expected_len){
+        actualLen++;
+        if (actualLen == expectedLen) {
           client.end();
           callback(results);
         }
@@ -81,7 +82,7 @@ function getPages(docIds, indexingURL, callback) {
     });
   }
 
-  if(actual_len == expected_len){
+  if (actualLen == expectedLen) {
     client.end();
     callback(results);
   }
