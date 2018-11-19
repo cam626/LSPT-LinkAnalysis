@@ -1,13 +1,13 @@
 const http = require('http');
-const rankingURL = 'http://blender01.cs.rpi.edu:8080/ranking?query=';
-const indexingURL = '';
+const {Client} = require('pg');
 
 /** Gets the results JSON for a specific query form ranking
  *  @param {String} query - the query the user searched for
+ *  @param {String} rankingURL - the URL to the ranking team
  *  @param {requestCallback} callback - called with an Object containing a pages
  *  array
  */
-function getDocIds(query, callback) {
+function getDocIds(query, rankingURL, callback) {
   let parsedData;
   http.get(rankingURL + query, (resp) => {
     const status = resp.statusCode;
@@ -38,41 +38,62 @@ function getDocIds(query, callback) {
 
 /** Gets an array of pages JSONs from indexing
  *  @param {Array} docIds - an array of integers
+ *  @param {String} indexingURL - the URL to the indexing database
  *  @param {requestCallback} callback - called with an array
                     containing page information
  */
-function getPages(docIds, callback) {
+function getPages(docIds, indexingURL, callback) {
+  const client = new Client({
+    user: 'querying',
+    password: 'querying',
+    host: indexingURL,
+    port: 5432,
+    database: 'index',
+  });
+
   const results = [];
-  for (const key in docIds) {
-    if (!docIds.hasOwnProperty(key)) {
-      continue;
+  const text = 'SELECT title, url FROM documents WHERE id=';
+  client.connect((error) =>{
+    if (error) {
+      console.error(error.message);
+    } else {
+      // console.log('connected');
     }
-    http.get(indexingURL + key, (resp) =>{
-      const status = resp;
-      if (status != 200) {
-        const error = new Error('Request to indexing was unsuccessful\n');
-        console.error(error.message);
-        resp.resume();
-        callback( [] );
-      }
+  });
 
-      let rawData = '';
-      resp.on('data', (chunk) => {
-        rawData += chunk;
-      });
+  let expectedLen = docIds.length;
+  let actualLen = 0;
+  for (let idx = 0; idx < docIds.length; idx++) {
+    // console.log(docIds[idx]);
 
-      resp.on('end', () => {
-        try {
-          const parsedData = JSON.parse(rawData);
-          results.append(parsedData);
-        } catch (e) {
-          console.error(e.message);
+    client.query(text + docIds[idx], (error, res) => {
+      if (error) {
+        console.log(error.message);
+        expectedLen--;
+      } else {
+        if (res.rows[0]) {
+          // console.log(res.rows[0]);
+          results.push(res.rows[0]);
+          actualLen++;
+          if (actualLen == expectedLen) {
+            client.end();
+            callback(results);
+          }
+        } else {
+          expectedLen--;
+          if (actualLen == expectedLen) {
+            client.end();
+            callback(results);
+          }
         }
-      });
+      }
     });
   }
 
-  callback(results);
+  if (actualLen == expectedLen) {
+    client.end();
+    callback(results);
+  }
 }
 
 module.exports = {getDocIds, getPages};
