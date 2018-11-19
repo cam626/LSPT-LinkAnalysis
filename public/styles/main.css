@@ -33,6 +33,32 @@ body {
   z-index: 1;
 }
 
+
+#header-container {
+  height: 250px;
+}
+
+#main-page-logo {
+  width: 150px;
+  height: 150px;
+  margin-left: 70px;
+  margin-top: 20px;
+}
+
+#search-bar-container {
+  height: 150px;
+}
+
+#footer-container {
+  display: flex;
+  justify-content: center;
+}
+
+#main-page-footer-image {
+  width: 277px;
+  height: 277px;
+}
+
 .container
 {
     white-space: nowrap;
