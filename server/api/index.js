@@ -57,26 +57,34 @@ function getPages(docIds, indexingURL, callback) {
     if (error) {
       console.error(error.message);
     } else {
-      console.log('connected');
+      // console.log('connected');
     }
   });
 
   let expectedLen = docIds.length;
   let actualLen = 0;
   for (let idx = 0; idx < docIds.length; idx++) {
-    console.log(docIds[idx]);
+    // console.log(docIds[idx]);
 
     client.query(text + docIds[idx], (error, res) => {
       if (error) {
         console.log(error.message);
         expectedLen--;
       } else {
-        console.log(res.rows[0]);
-        results.push(res.rows[0]);
-        actualLen++;
-        if (actualLen == expectedLen) {
-          client.end();
-          callback(results);
+        if (res.rows[0]) {
+          // console.log(res.rows[0]);
+          results.push(res.rows[0]);
+          actualLen++;
+          if (actualLen == expectedLen) {
+            client.end();
+            callback(results);
+          }
+        } else {
+          expectedLen--;
+          if (actualLen == expectedLen) {
+            client.end();
+            callback(results);
+          }
         }
       }
     });

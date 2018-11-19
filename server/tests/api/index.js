@@ -26,18 +26,30 @@ function testGetDocIds() {
 
 function testGetPages() {
   apis.getPages([], indexingURL, (resp) => {
-    console.log(resp);
+    //console.log(resp);
     assert(resp.length == 0);
   });
   
   apis.getPages([1,2], indexingURL, (resp) => {
-    console.log(resp);
+    //console.log(resp);
     assert(resp.length != 0);
   });
 
   apis.getPages([3], indexingURL, (resp) => {
-    console.log(resp);
+    //console.log(resp);
     assert(resp.length == 0);
+  });
+  apis.getPages([1,2,3], indexingURL, (resp) => {
+    //console.log(resp);
+    assert(resp.length == 2);
+  });
+  apis.getPages([1,3,2], indexingURL, (resp) => {
+    //console.log(resp);
+    assert(resp.length == 2);
+  });
+  apis.getPages([3,1,2], indexingURL, (resp) => {
+    //console.log(resp);
+    assert(resp.length == 2);
   });
 }
 module.exports = {testGetDocIds, testGetPages};
