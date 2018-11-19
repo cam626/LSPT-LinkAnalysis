@@ -4,10 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "./node_modules/.bin/nodemon ./server/app.js --exec 'npm run fix && npm run test && node'",
+    "start": "./node_modules/.bin/nodemon ./server/app.js --exec 'npm run lint && npm run test && node'",
     "test": "node ./server/tests",
-    "lint": "./node_modules/.bin/eslint .",
-    "fix": "./node_modules/.bin/eslint . --fix"
+    "lint": "./node_modules/.bin/eslint . --fix"
   },
   "author": "",
   "license": "ISC",
