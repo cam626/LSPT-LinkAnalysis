@@ -12,7 +12,15 @@ Http.send();
 Http.onreadystatechange = () => {
   if (Http.readyState == 4 && Http.status == 200) {
     const pages = JSON.parse(Http.responseText);
-    console.log(pages);
+    $('#results-num').text(pages.length == 1 ?
+      'There is 1 result' :
+      'There are ' + pages.length + ' results');
+    for (let i = 0; i < pages.length; i++) {
+      $('#list').append('<li id="list-el' +
+        i + '"><h2>' + pages[i].title +
+        '</h2><h4>' + pages[i].url +
+        '</h4><p>...Text Snippets...</p></li>');
+    }
   }
 };
 
