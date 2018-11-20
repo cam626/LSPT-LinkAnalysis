@@ -22,15 +22,16 @@ class Listener : public Http::Handler
 {
   public:
 	HTTP_PROTOTYPE(Listener);
-
+	Webgraph graph;
 	void onRequest(const Http::Request &request, Http::ResponseWriter response);
 	int processQueue();
-
-  private:
+	//void* calculatePageRank(void * arg);
 	Sender sender;
+  private:
+	
 	std::set<std::string> blacklist;
 	std::map<std::string, std::vector<std::string>> queue;
-	Webgraph graph;
+	
 
 	bool allowedURL(std::string URL);
 };

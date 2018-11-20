@@ -14,8 +14,8 @@ private:
     std::string url;
     float rank;
     std::string timestamp;
-    std::vector<Node> children;  // outgoing connections
-    std::vector<Node> parents;   // incoming connections
+    std::vector<std::string> children;  // outgoing connections
+    std::vector<std::string> parents;   // incoming connections
 public:
     // Constructor
     Node(const std::string &url_);
@@ -23,14 +23,13 @@ public:
     const std::string& getUrl() const;
     float getRank() const;
     const std::string& getTimestamp() const;
-    const std::vector<Node>& getChildren() const;
-    const std::vector<Node>& getParents() const;
-    bool hasChild(const Node &child_) const;
-    bool hasParent(const Node &parent_) const;
-
+    const std::vector<std::string>& getChildren() const;
+    const std::vector<std::string>& getParents() const;
+    bool hasChild(const std::string &child_) const;
+    bool hasParent(const std::string &parent_) const;
     // Modifier
-    bool addChild(const Node &child_);
-    bool addParent(const Node &parent_);
+    bool addChild(const std::string &child_);
+    bool addParent(const std::string &parent_);
     void updateRank(const float rank_);
     void updateTimestamp(const std::string &timestamp_);
     // Operator
