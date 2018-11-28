@@ -15,6 +15,39 @@ class TextExtractor:
         self.root = self.tree.getroot()
 
     '''
+    Returns all links in the document (hrefs)
+    '''
+    def getLinksInDocument(self):
+        links = None
+        return links
+
+    '''
+    Returns all 'header' words (text in h1,h2,h3,h4,h5,etc.) in the document.
+    '''
+    def getHeaderListOfWords(self):
+        return []
+
+    '''
+    Returns all 'title' words. (not sure what this is)
+    '''
+    def getTitleListOfWords(self):
+        return []
+
+    '''
+    Extract the metadata from the document.
+    '''
+    def extractMetadata(self):
+        metadata = {
+            "charset" : None, #metadata field (probably UTF-8)
+            'title' : None, #metadata field
+            'keywords' : [], #metadata field (don't need to ngram)
+            'description' : '', #metadata field
+            'docid' : -1 #this is not our job. Just send a -1 (confused by this).
+        }
+        return metadata
+
+
+    '''
     getListOfWords initiates parsing tags within the html 
         and returns valid words found.
     '''
@@ -45,7 +78,7 @@ class TextExtractor:
 def main():
     path = 'Examples/example1.html'
     te = TextExtractor(path)
-    print te.getListOfWords()
+    #print te.getListOfWords()
 
 if __name__== "__main__":
     main()

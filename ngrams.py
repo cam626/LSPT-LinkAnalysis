@@ -31,18 +31,15 @@ def ngram_helper(words, n):
 Forward facing function. Takes in a list of words and a value n. Produces all ngrams 0-n.
 '''
 def generate_ngrams(words, n):
-  all_ngrams = Counter()
+  all_grams = dict()
   for i in range(n):
-    #generate all i_grams
-    i_grams = ngram_helper(words, i)
-    #append them to the all_grams dict
-    all_ngrams.update(i_grams)
-  return dict(all_ngrams)
+    current_key = '{0}grams'.format(i+1)
+    all_grams[current_key] = i_grams = ngram_helper(words, i+1)
+  return all_grams
 
 
 if __name__ == '__main__':
   words = ["this", "is", "a", "sample", "input", "that", "has", "a", "few","duplicates","to","worry","about","this","is","a","input"]
   n_grams = generate_ngrams(words,3)
 
-  for gram, count in n_grams.items():
-    print("{0}: {1}".format(gram, count))
+  print(json.dumps(n_grams, indent=4))
