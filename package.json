@@ -9,7 +9,10 @@
     "lint": "./node_modules/.bin/eslint . --fix",
     "pre-commit-message": "echo 'Running Pre-commit Linter (use --no-verify if you need to commit something that fails to pass the linter)' && exit 0"
   },
-  "pre-commit": [ "pre-commit-message", "lint" ],
+  "pre-commit": [
+    "pre-commit-message",
+    "lint"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
