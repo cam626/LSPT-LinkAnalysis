@@ -73,7 +73,6 @@ class TextExtractor:
         }
         return metadata
 
-
     '''
     getListOfWords initiates parsing tags within the html 
         and returns valid words found.
