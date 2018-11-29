@@ -17,7 +17,7 @@ body {
   background-size: 25px 25px;
   background-position: 8px 5px;
   font-size: 15px;
-  padding-left: 40px
+  padding-left: 40px;
 }
 
 /* Go button next to the search bar */
@@ -59,7 +59,8 @@ body {
   height: 277px;
 }
 
-.container  {
+
+.container {
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
