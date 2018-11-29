@@ -56,7 +56,8 @@ function getPages(docIds, indexingURL, callback) {
   });
 
   const results = [];
-  const text = 'SELECT title, url FROM documents WHERE id=';
+  let text = 'SELECT title, url, description, paragraphs ';
+  text += 'FROM documents WHERE id=';
   client.connect((error) =>{
     if (error) {
       console.error(error.message);
