@@ -23,6 +23,7 @@
   "devDependencies": {
     "eslint": "^5.8.0",
     "eslint-config-google": "^0.11.0",
+    "event-stream": "3.3.4",
     "nodemon": "^1.18.6",
     "pre-commit": "^1.2.2"
   },
