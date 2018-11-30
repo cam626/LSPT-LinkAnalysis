@@ -2,16 +2,8 @@ import text_extract
 import ngrams
 import json
 
-def main():
+def Text_Transformation_controller(crawling_data,max_n_gram_size,max_threads):
     path = 'Examples/example1.html'
-
-    #while True:
-    
-    ###########################################
-    # We recieve an api call from crawling here.
-    ############################################
-    #crawling_data = recieve_from_crawling()
-    crawling_data = {'url' : 'www.example.com', 'timestamp' : "2018-11-15T16:25:56+00:00"}
 
     te = text_extract.TextExtractor(path)
     
@@ -20,9 +12,9 @@ def main():
     output['metadata']['url'] = crawling_data['url']
     output['metadata']['timestamp'] = crawling_data['timestamp'], #get from crawling API
     
-    n_grams = ngrams.generate_ngrams(te.getListOfWords(),5)
-    titles = ngrams.generate_ngrams(te.getTitleListOfWords(),5)
-    headers = ngrams.generate_ngrams(te.getHeaderListOfWords(),5)
+    n_grams = ngrams.generate_ngrams(te.getListOfWords(),max_n_gram_size)
+    titles = ngrams.generate_ngrams(te.getTitleListOfWords(),max_n_gram_size)
+    headers = ngrams.generate_ngrams(te.getHeaderListOfWords(),max_n_gram_size)
 
     output['ngrams'] = {
       'all' : n_grams,
@@ -46,7 +38,7 @@ def main():
 
 
 if __name__== "__main__":
-    main()
+    Text_Transformation_controller({'url' : 'www.example.com', 'timestamp' : "2018-11-15T16:25:56+00:00"},5,1)
 
 
 
