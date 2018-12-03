@@ -23,11 +23,12 @@ function randUrl(arr) {
  */
 function makeSnippet(description, paragraphs) {
   let snippet = '';
+  const size = 111;
   if (description) paragraphs.unshift(description);
   if (paragraphs && paragraphs.length > 0) {
     snippet += paragraphs.join('... ');
   }
-  return snippet.length > 120 ? snippet.slice(0, 197) + '...' : snippet;
+  return snippet.length > size ? snippet.slice(0, size-3) + '...' : snippet;
 }
 
 router.get('/query', (req, res) => {
