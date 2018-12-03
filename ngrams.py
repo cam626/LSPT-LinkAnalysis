@@ -35,7 +35,7 @@ def generate_ngrams(words, n):
   all_grams = dict()
   for i in range(n):
     current_key = '{0}grams'.format(i+1)
-    all_grams[current_key] = i_grams = ngram_helper(words, i+1)
+    all_grams[current_key] = ngram_helper(words, i+1)
   return all_grams
 
 
