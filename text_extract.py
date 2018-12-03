@@ -42,7 +42,7 @@ class TextExtractor:
         links = []
         for link in self.soup.find_all('a'):
             if link.has_attr('href'):
-                links.append(html.unescape(link['href']))
+                links.append(link['href'].encode('ascii','ignore').decode('UTF-8'))
         return links
 
     '''
@@ -53,15 +53,15 @@ class TextExtractor:
         for text in self.soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']):
             if text.text is not None:
                 for word in text.text.split():
-                    if word.encode('ascii','ignore').lower().isalnum():
-                        header_words.append(html.unescape(word).lower())
+                    if word.encode('ascii','ignore').decode('UTF-8').lower().isalnum():
+                        header_words.append(word.encode('ascii','ignore').decode('UTF-8').lower())
         return header_words
 
     '''
     Returns all 'title' words. (not sure what this is)
     '''
     def getTitleListOfWords(self):
-        return [html.unescape(item).lower() for item in self.soup.title.text.split()]
+        return [item.encode('ascii','ignore').lower().decode('UTF-8') for item in self.soup.title.text.split() if item.isalnum()]
 
     '''
     Extract the metadata from the document.
@@ -98,7 +98,7 @@ class TextExtractor:
         for text in visible_texts:
             for word in text.split():
                 if word.encode('ascii','ignore').lower().isalnum():
-                    words.append(html.unescape(word).lower())
+                    words.append(word.encode('ascii','ignore').lower().decode('UTF-8'))
         return words
 
 def main():
