@@ -20,7 +20,8 @@ def main():
     output['metadata']['url'] = crawling_data['url']
     output['metadata']['timestamp'] = crawling_data['timestamp'], #get from crawling API
     
-    n_grams = ngrams.generate_ngrams(te.getListOfWords(),5)
+    list_of_words = te.getListOfWords()
+    n_grams = ngrams.generate_ngrams(list_of_words,5)
     titles = ngrams.generate_ngrams(te.getTitleListOfWords(),5)
     headers = ngrams.generate_ngrams(te.getHeaderListOfWords(),5)
 
@@ -29,6 +30,7 @@ def main():
       'headers' : headers, #we need to parse these
       'title' : titles  #we need to parse these.
     }
+    output["text"] = list_of_words
 
     #This line will print the results in output
     print(json.dumps(output,indent=4))
