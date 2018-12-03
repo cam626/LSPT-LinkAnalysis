@@ -187,3 +187,7 @@ body::-webkit-scrollbar-thumb:hover {
 #next:hover {
   background-color: #e0e0e0;
 }
+
+a.nounderline {
+  text-decoration: none;
+}
