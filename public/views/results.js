@@ -19,9 +19,8 @@ Http.onreadystatechange = () => {
       $('#list').append('<li id="list-el' +
         i + '"><h2><a class="nounderline" href=' +
         pages[i].url + '>' + pages[i].title +
-        '</a></h2><h4><a href=' + pages[i].url +
-        '/>'+ pages[i].url +
-        '</h4><p>' + pages[i].snippet + '</p></li>');
+        '</a></h2><h4><font color="#325b32">' + pages[i].url +
+        '</font></h4><p>' + pages[i].snippet + '</p></li>');
     }
   }
 };
