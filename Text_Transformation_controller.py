@@ -2,15 +2,14 @@ import text_extract
 import ngrams
 import json
 
-def Text_Transformation_controller(crawling_data,max_n_gram_size,max_threads):
-    path = 'Examples/example1.html'
+def Text_Transformation_controller(crawling_data,max_n_gram_size):
 
-    te = text_extract.TextExtractor(path)
+    te = text_extract.TextExtractor(crawling_data['content'])		#Run the text extractor
     
-    output = dict()
-    output['metadata'] = te.extractMetadata()
-    output['metadata']['url'] = crawling_data['url']
-    output['metadata']['timestamp'] = crawling_data['timestamp'], #get from crawling API
+    output = dict()													#create the dictionary
+    output['metadata'] = te.extractMetadata()						#Get metadata from html
+    output['metadata']['url'] = crawling_data['url']				#get from crawling API
+    output['metadata']['timestamp'] = crawling_data['metadata']['timestamp'], 	#get from crawling API
     
     n_grams = ngrams.generate_ngrams(te.getListOfWords(),max_n_gram_size)
     titles = ngrams.generate_ngrams(te.getTitleListOfWords(),max_n_gram_size)
@@ -24,18 +23,8 @@ def Text_Transformation_controller(crawling_data,max_n_gram_size,max_threads):
 
     #This line will print the results in output
     print(json.dumps(output,indent=4))
-
-    ###########################################
-    # We forward to link analysis here.
-    ############################################
-    '''
-    link_json = {
-      'base_url' : url # the url we recieved from the crawling api call.
-    }
-
-
-    '''
-
+	
+    return output
 
 if __name__== "__main__":
     Text_Transformation_controller({'url' : 'www.example.com', 'timestamp' : "2018-11-15T16:25:56+00:00"},5,1)
