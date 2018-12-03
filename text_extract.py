@@ -61,8 +61,12 @@ class TextExtractor:
     Returns all 'title' words. (not sure what this is)
     '''
     def getTitleListOfWords(self):
-        return [item.encode('ascii','ignore').lower().decode('UTF-8') for item in self.soup.title.text.split() if item.isalnum()]
-
+        title_words = []
+        if self.soup.title:
+            for item in self.soup.title.text.split():
+                if item.isalnum():
+                    title_words.append(item.encode('ascii','ignore').lower().decode('UTF-8'))
+        return title_words
     '''
     Extract the metadata from the document.
     '''
