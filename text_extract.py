@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Comment
 import argparse
 import html
+import re
 
 
 '''
@@ -53,8 +54,9 @@ class TextExtractor:
         for text in self.soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']):
             if text.text is not None:
                 for word in text.text.split():
-                    if word.encode('ascii','ignore').decode('UTF-8').lower().isalnum():
-                        header_words.append(word.encode('ascii','ignore').decode('UTF-8').lower())
+                    new_word = re.sub('\\W+','', word.encode('ascii','ignore').decode('UTF-8')).lower()
+                    if new_word:
+                        header_words.append(new_word)
         return header_words
 
     '''
@@ -63,9 +65,10 @@ class TextExtractor:
     def getTitleListOfWords(self):
         title_words = []
         if self.soup.title:
-            for item in self.soup.title.text.split():
-                if item.isalnum():
-                    title_words.append(item.encode('ascii','ignore').lower().decode('UTF-8'))
+            for word in self.soup.title.text.split():
+                new_word = re.sub('\\W+','', word.encode('ascii','ignore').decode('UTF-8')).lower()
+                if new_word:
+                    title_words.append(new_word)
         return title_words
     '''
     Extract the metadata from the document.
@@ -101,8 +104,9 @@ class TextExtractor:
         visible_texts = filter(self.tag_visible, texts)  
         for text in visible_texts:
             for word in text.split():
-                if word.encode('ascii','ignore').lower().isalnum():
-                    words.append(word.encode('ascii','ignore').lower().decode('UTF-8'))
+                new_word = re.sub('\\W+','', word.encode('ascii','ignore').decode('UTF-8')).lower()
+                if new_word:
+                    words.append(new_word)
         return words
 
 def main():
