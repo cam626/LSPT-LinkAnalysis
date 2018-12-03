@@ -1,6 +1,7 @@
 import json
 import os
 from collections import Counter
+import argparse
 '''
 The fully armed and operational n_gram module.
 '''
@@ -39,7 +40,26 @@ def generate_ngrams(words, n):
 
 
 if __name__ == '__main__':
-  words = ["this", "is", "a", "sample", "input", "that", "has", "a", "few","duplicates","to","worry","about","this","is","a","input"]
-  n_grams = generate_ngrams(words,3)
+  parser = argparse.ArgumentParser()
+  
+  parser.add_argument('--string', action="store_true", default=False, help="Pass in a string to turn into ngrams.")
+  parser.add_argument('--n', default=5,  help="Pass in an n value for your run (defaults to 5).")
+  parser.add_argument('arg1', nargs='+', help="Either the path to an input file OR, if you specify --string, an input string")
+
+  args = parser.parse_args()
+
+  if args.string == True:
+    print("An input string")
+    inpt = args.arg1
+  elif len(args.arg1)> 1:
+    print("ERROR: Too many command line arguments. Did you mean to specify --string?")
+    sys.exit(1)
+  else:
+    path = args.arg1[0]
+    with open(path, 'r') as myfile:
+      inpt = myfile.read().split()
+
+
+  n_grams = generate_ngrams(inpt,int(args.n))
 
   print(json.dumps(n_grams, indent=4))
