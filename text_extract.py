@@ -1,8 +1,18 @@
 # -*- coding: utf-8 -*- 
 
-import urllib2
+from future.standard_library import install_aliases
+install_aliases()
+
+from urllib.parse import urlparse, urlencode
+from urllib.request import urlopen, Request
+from urllib.error import HTTPError
+
 from bs4 import BeautifulSoup
 from bs4.element import Comment
+import argparse
+
+import html
+
 
 '''
 Text Extractor is a class that performs the text extracting part of text transformation.
@@ -14,6 +24,18 @@ class TextExtractor:
     def __init__(self, html_string):
         self.soup = BeautifulSoup(html_string, features="html.parser")
 
+
+    '''
+    To string object for the class.
+    '''
+    def __str__(self):
+      output =  'Every Word: {0}\n'.format(self.getListOfWords())
+      output += 'Links: {0}\n'.format(self.getLinksInDocument())
+      output += 'Header Words: {0}\n'.format(self.getHeaderListOfWords())
+      output += 'Title Words: {0}\n'.format(self.getTitleListOfWords())
+      return output
+
+
     '''
     Returns all links in the document (hrefs)
     '''
@@ -21,7 +43,7 @@ class TextExtractor:
         links = []
         for link in self.soup.find_all('a'):
             if link.has_attr('href'):
-                links.append(link['href'].encode('ascii','ignore'))
+                links.append(html.unescape(link['href']))
         return links
 
     '''
@@ -33,14 +55,14 @@ class TextExtractor:
             if text.text is not None:
                 for word in text.text.split():
                     if word.encode('ascii','ignore').lower().isalnum():
-                        header_words.append(word.encode('ascii','ignore').lower())
+                        header_words.append(html.unescape(word).lower())
         return header_words
 
     '''
     Returns all 'title' words. (not sure what this is)
     '''
     def getTitleListOfWords(self):
-        return [item.encode('ascii','ignore').lower() for item in self.soup.title.text.split()]
+        return [html.unescape(item).lower() for item in self.soup.title.text.split()]
 
     '''
     Extract the metadata from the document.
@@ -77,7 +99,7 @@ class TextExtractor:
         for text in visible_texts:
             for word in text.split():
                 if word.encode('ascii','ignore').lower().isalnum():
-                    words.append(word.encode('ascii','ignore').lower())
+                    words.append(html.unescape(word).lower())
         return words
 
 def main():
@@ -257,10 +279,7 @@ def main():
 </body></html>
  """
     te = TextExtractor(path)
-    print "Every words : ", te.getListOfWords()
-    print "Links : ", te.getLinksInDocument()
-    print "Header words : ", te.getHeaderListOfWords()
-    print "Title words : ", te.getTitleListOfWords()
+    print(te)
 
 if __name__== "__main__":
     main()
