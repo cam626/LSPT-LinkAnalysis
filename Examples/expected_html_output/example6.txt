@@ -1,0 +1,4 @@
+Every Word: ['submitty', 'rpi', 'computer', 'science', 'submitty', 'submitty', 'login', 'stay', 'logged', 'in', '2018', 'rpi', 'an', 'rcos', 'project']
+Links: ['https://science.rpi.edu/computer-science', 'https://submitty.cs.rpi.edu/index.php?', 'http://submitty.org/', 'https://rcos.io/', 'https://github.com/Submitty/Submitty']
+Header Words: ['rpi', 'computer', 'science', 'submitty', 'submitty', 'login']
+Title Words: ['submitty']
