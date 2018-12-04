@@ -2,6 +2,10 @@ import json
 import os
 from collections import Counter
 import argparse
+
+with open("Data/stopwords.txt", 'r') as infile:
+  stopwords = infile.read().split()
+
 '''
 The fully armed and operational n_gram module.
 '''
@@ -20,12 +24,18 @@ def ngram_helper(words, n):
 
   #now that we have our iterators, we can iterate over them,
   occurrences = dict()
+  flag = False
   for tup in zipped:
     #create a string out of the words of the gram.
-    str_tup = " ".join(tup)
-    #update the number of occurrences of the gram.
-    occurrences[str_tup] = occurrences.get(str_tup, 0) + 1
-
+    for word in tup:
+        if word in stopwords:
+          flag = True
+          break
+    if not flag:
+      str_tup = " ".join(tup)
+      #update the number of occurrences of the gram.
+      occurrences[str_tup] = occurrences.get(str_tup, 0) + 1
+    flag = False
   return occurrences
 
 '''
