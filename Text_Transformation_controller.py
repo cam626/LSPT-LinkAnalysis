@@ -2,28 +2,19 @@ import text_extract
 import ngrams
 import json
 
-def main():
-    path = 'Examples/example1.html'
+def Text_Transformation_controller(crawling_data,max_n_gram_size):
 
-    #while True:
+    te = text_extract.TextExtractor(crawling_data['content'])		#Run the text extractor
     
-    ###########################################
-    # We recieve an api call from crawling here.
-    ############################################
-    #crawling_data = recieve_from_crawling()
-    crawling_data = {'url' : 'www.example.com', 'timestamp' : "2018-11-15T16:25:56+00:00"}
-
-    te = text_extract.TextExtractor(path)
+    output = dict()													#create the dictionary
+    output['metadata'] = te.extractMetadata()						#Get metadata from html
+    output['metadata']['url'] = crawling_data['url']				#get from crawling API
+    output['metadata']['timestamp'] = crawling_data['metadata']['timestamp'], 	#get from crawling API
     
-    output = dict()
-    output['metadata'] = te.extractMetadata()
-    output['metadata']['url'] = crawling_data['url']
-    output['metadata']['timestamp'] = crawling_data['timestamp'], #get from crawling API
-    
-    list_of_words = te.getListOfWords()
-    n_grams = ngrams.generate_ngrams(list_of_words,5)
-    titles = ngrams.generate_ngrams(te.getTitleListOfWords(),5)
-    headers = ngrams.generate_ngrams(te.getHeaderListOfWords(),5)
+    list_of_words = te.getListOfWords() 
+    n_grams = ngrams.generate_ngrams(list_of_words,max_n_gram_size)
+    titles = ngrams.generate_ngrams(te.getTitleListOfWords(),max_n_gram_size)
+    headers = ngrams.generate_ngrams(te.getHeaderListOfWords(),max_n_gram_size)
 
     output['ngrams'] = {
       'all' : n_grams,
@@ -31,24 +22,14 @@ def main():
       'title' : titles  #we need to parse these.
     }
     output["text"] = list_of_words
-
+    
     #This line will print the results in output
     print(json.dumps(output,indent=4))
-
-    ###########################################
-    # We forward to link analysis here.
-    ############################################
-    '''
-    link_json = {
-      'base_url' : url # the url we recieved from the crawling api call.
-    }
-
-
-    '''
-
+	
+    return output
 
 if __name__== "__main__":
-    main()
+    Text_Transformation_controller({'url' : 'www.example.com', 'timestamp' : "2018-11-15T16:25:56+00:00"},5,1)
 
 
 
