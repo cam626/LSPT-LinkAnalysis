@@ -58,7 +58,7 @@ std::string domainExtractor(std::string URL)
 
 static void* calculatePageRank(void * arg)
 {
-	std::cout<<"tid: "<<(unsigned int)pthread_self()<<", calculating page rank"<<std::endl;
+	// std::cout<<"tid: "<<(unsigned int)pthread_self()<<", calculating page rank"<<std::endl;
 	Listener *ptr = (Listener*) arg;
 	pthread_mutex_lock(&mutex);
 	std::string head;
@@ -79,7 +79,7 @@ static void* calculatePageRank(void * arg)
 			ptr->sender.requestRobot(id, *itr);
 		}
 	}
-	
+
 	return NULL;
 }
 
@@ -102,7 +102,7 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 	pthread_mutex_init(&mutex, NULL);
 	pthread_t tid;
-	
+
 	// Parse the JSON and send an error response to the client if it is not valid
 	rapidjson::Document doc;
 	rapidjson::ParseResult ok = doc.Parse(json);
@@ -148,10 +148,9 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 
 		// Send response to client that the data was correctly parsed
-		response.send(Http::Code::Ok,"JSON successfully parsed.\n");
-		std::cout<<"tid: "<<(unsigned int)pthread_self()<<", received json file. Dispaching sub-thread to calculate the page rank."<<std::endl;
+		response.send(Http::Code::Ok, "JSON successfully parsed.\n");
 
-		//pthread_mutex_lock(&mutex);
+		pthread_mutex_lock(&mutex);
 		heads.push(head);
 		//pthread_mutex_unlock(&mutex);
 		//update rank ----- need to be paralleled
