@@ -11,7 +11,8 @@ def Text_Transformation_controller(crawling_data,max_n_gram_size):
     output['metadata']['url'] = crawling_data['url']				#get from crawling API
     output['metadata']['timestamp'] = crawling_data['metadata']['timestamp'], 	#get from crawling API
     
-    n_grams = ngrams.generate_ngrams(te.getListOfWords(),max_n_gram_size)
+    list_of_words = te.getListOfWords() 
+    n_grams = ngrams.generate_ngrams(list_of_words,max_n_gram_size)
     titles = ngrams.generate_ngrams(te.getTitleListOfWords(),max_n_gram_size)
     headers = ngrams.generate_ngrams(te.getHeaderListOfWords(),max_n_gram_size)
 
@@ -20,7 +21,8 @@ def Text_Transformation_controller(crawling_data,max_n_gram_size):
       'headers' : headers, #we need to parse these
       'title' : titles  #we need to parse these.
     }
-
+    output["text"] = list_of_words
+    
     #This line will print the results in output
     print(json.dumps(output,indent=4))
 	
