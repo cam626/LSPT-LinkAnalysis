@@ -1,6 +1,8 @@
 
 #include "listener.h"
-
+#include <thread>
+#include <queue>
+#include <pthread.h>
 /*
     Takes a URL and removes the http prefix if it exists.
 
@@ -9,6 +11,15 @@
 
     Returns: std::string with no http prefix.
 */
+
+
+//shared queue
+
+std::set<std::string> current_domains;
+std::queue<std::string> heads;
+pthread_mutex_t mutex;
+
+
 std::string stripHttp(std::string URL)
 {
 	// Make sure we don't try to take the substring if it isn't long enough
@@ -50,10 +61,36 @@ std::string domainExtractor(std::string URL)
     It should parse the request into JSON and determine what to do based on the content of the request.
 
     Possible inputs come from Text Transformation and Crawling. Documentation on the format of these requests
-    can be found here: 
-    
+    can be found here:
+
     https://docs.google.com/presentation/d/1CMwumUntfIJMWuTSMG6REci5STKPXVPRGI4hCk_vIH8/edit#slide=id.g4657f2d0cc_0_5
 */
+static void* calculatePageRank(void * arg)
+{
+	Listener *ptr = (Listener*) arg;
+	pthread_mutex_lock(&mutex);
+	std::string head;
+	head = heads.front();
+	heads.pop();
+	pthread_mutex_unlock(&mutex);
+	ptr->graph.updateRank(head);
+	int id = ptr->sender.addConnection(INDEX_HOST, INDEX_PORT);
+	ptr->sender.sendRanks(id, ptr->graph.getAllRanks());
+
+	// Send next to crawl to crawling team
+	id = ptr->sender.addConnection(CRAWL_HOST, CRAWL_PORT);
+	if (id != -1)
+	{
+		std::set<std::string>::iterator itr;
+		for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
+		{
+			ptr->sender.requestRobot(id, *itr);
+		}
+	}
+	// std::cout<<getpid()<<std::endl;
+	return NULL;
+}
+
 void Listener::onRequest(const Http::Request &request, Http::ResponseWriter response)
 {
 
@@ -61,7 +98,9 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 	char json[1024];
 	bzero(&json, 1024);
 	strcpy(json, request.body().c_str());
-
+	pthread_mutex_init(&mutex, NULL);
+	// std::cout<<temp<<std::endl;
+	pthread_t tid;
 	// Parse the JSON and send an error response to the client if it is not valid
 	rapidjson::Document doc;
 	rapidjson::ParseResult ok = doc.Parse(json);
@@ -95,7 +134,7 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 			return;
 		}
 
-		std::set<std::string> current_domains;
+
 
 		for (rapidjson::Value::ConstValueIterator itr = tails_json.Begin(); itr != tails_json.End(); ++itr)
 		{
@@ -107,24 +146,22 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 			this->graph.addConnection(head, itr->GetString());
 		}
 
+
 		// Send response to client that the data was correctly parsed
 		response.send(Http::Code::Ok, "JSON successfully parsed.\n");
-
-		this->graph.updateRank(head);
-
-		int id = this->sender.addConnection(INDEX_HOST, INDEX_PORT);
-		this->sender.sendRanks(id, this->graph.getAllRanks());
-
-		// Send next to crawl to crawling team
-		id = this->sender.addConnection(CRAWL_HOST, CRAWL_PORT);
-		if (id != -1)
+		pthread_mutex_lock(&mutex);
+		heads.push(head);
+		pthread_mutex_unlock(&mutex);
+		//update rank ----- need to be paralleled
+		//calculatePageRank(this);
+		// std::thread t(calculatePageRank,this);
+		if(pthread_create(&tid, NULL, calculatePageRank , this))
 		{
-			std::set<std::string>::iterator itr;
-			for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
-			{
-				this->sender.requestRobot(id, *itr);
-			}
+			printf("pthread_create failed!\n");
+			exit(0);
 		}
+
+
 	}
 	else if (doc.HasMember("Robots"))
 	{
@@ -176,7 +213,7 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 }
 
 /*
-	Processes the entire queue and sends POST requests to the crawling team of what to 
+	Processes the entire queue and sends POST requests to the crawling team of what to
 	crawl next.
 
 	Returns: The number of links sent to the crawling team
@@ -194,7 +231,7 @@ int Listener::processQueue()
 		{
 			if (allowedURL(itr->second[i]))
 			{
-				/* 
+				/*
 					TODO: Use information from graph to check timestamp
 					      and add to batch if enough time has passed
 				*/
