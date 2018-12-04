@@ -56,15 +56,6 @@ std::string domainExtractor(std::string URL)
 	return temp.substr(0, ending);
 }
 
-/*
-    This function is called by the Pistache Library each time there is data sent to our open port.
-    It should parse the request into JSON and determine what to do based on the content of the request.
-
-    Possible inputs come from Text Transformation and Crawling. Documentation on the format of these requests
-    can be found here:
-
-    https://docs.google.com/presentation/d/1CMwumUntfIJMWuTSMG6REci5STKPXVPRGI4hCk_vIH8/edit#slide=id.g4657f2d0cc_0_5
-*/
 static void* calculatePageRank(void * arg)
 {
 	Listener *ptr = (Listener*) arg;
@@ -87,10 +78,19 @@ static void* calculatePageRank(void * arg)
 			ptr->sender.requestRobot(id, *itr);
 		}
 	}
-	// std::cout<<getpid()<<std::endl;
+	
 	return NULL;
 }
 
+/*
+    This function is called by the Pistache Library each time there is data sent to our open port.
+    It should parse the request into JSON and determine what to do based on the content of the request.
+
+    Possible inputs come from Text Transformation and Crawling. Documentation on the format of these requests
+    can be found here:
+
+    https://docs.google.com/presentation/d/1CMwumUntfIJMWuTSMG6REci5STKPXVPRGI4hCk_vIH8/edit#slide=id.g4657f2d0cc_0_5
+*/
 void Listener::onRequest(const Http::Request &request, Http::ResponseWriter response)
 {
 
@@ -98,9 +98,10 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 	char json[1024];
 	bzero(&json, 1024);
 	strcpy(json, request.body().c_str());
+
 	pthread_mutex_init(&mutex, NULL);
-	// std::cout<<temp<<std::endl;
 	pthread_t tid;
+
 	// Parse the JSON and send an error response to the client if it is not valid
 	rapidjson::Document doc;
 	rapidjson::ParseResult ok = doc.Parse(json);
@@ -134,8 +135,6 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 			return;
 		}
 
-
-
 		for (rapidjson::Value::ConstValueIterator itr = tails_json.Begin(); itr != tails_json.End(); ++itr)
 		{
 			std::string domain = domainExtractor(itr->GetString());
@@ -149,19 +148,18 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 		// Send response to client that the data was correctly parsed
 		response.send(Http::Code::Ok, "JSON successfully parsed.\n");
+
 		pthread_mutex_lock(&mutex);
 		heads.push(head);
 		pthread_mutex_unlock(&mutex);
 		//update rank ----- need to be paralleled
 		//calculatePageRank(this);
 		// std::thread t(calculatePageRank,this);
-		if(pthread_create(&tid, NULL, calculatePageRank , this))
+		if(pthread_create(&tid, NULL, calculatePageRank, this))
 		{
 			printf("pthread_create failed!\n");
 			exit(0);
 		}
-
-
 	}
 	else if (doc.HasMember("Robots"))
 	{
