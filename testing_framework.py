@@ -140,6 +140,30 @@ class TextExtractorTests(unittest.TestCase):
 
     self.assertEqual(str(te),expected_output)
 
+  def test8(self):
+    test_file = 'example8'
+    print(" Testing {0}.html".format(test_file))
+    
+    html_file = os.path.join('Examples','html_files','{0}.html'.format(test_file))
+    expected_output_file = os.path.join('Examples','expected_html_output','{0}.txt'.format(test_file))
+
+    te = TextExtractor(openHtmlFileAsString(html_file))
+    expected_output = openTxtFileAsString(expected_output_file)
+
+    self.assertEqual(str(te),expected_output)
+
+  def test9(self):
+    test_file = 'example9'
+    print(" Testing {0}.html".format(test_file))
+    
+    html_file = os.path.join('Examples','html_files','{0}.html'.format(test_file))
+    expected_output_file = os.path.join('Examples','expected_html_output','{0}.txt'.format(test_file))
+
+    te = TextExtractor(openHtmlFileAsString(html_file))
+    expected_output = openTxtFileAsString(expected_output_file)
+
+    self.assertEqual(str(te),expected_output)
+
 ################################################
 #
 # NGRAM TESTS
