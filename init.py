@@ -5,10 +5,10 @@ def init():
 	initilization_data = {}	#Use a json to move the data around
 	
 	#The address of the Indexing team
-	initilization_data['Indexing_address'] = 'http://192.168.1.0:5000/tt'
+	initilization_data['Indexing_address'] = 'green-eth.cs.rpi.edu'
 
 	#The address of the Link Analysis Team
-	initilization_data['Link_Analysis_address'] ='http://192.168.1.0:5000/tt'
+	initilization_data['Link_Analysis_address'] ='maroon-t.cs.rpi.edu'
 
 	#The max size n-gram to compute
 	initilization_data['max_n_gram_size'] = 5
