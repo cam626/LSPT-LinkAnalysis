@@ -20,7 +20,7 @@ function startSearch() {
     console.log('Empty query');
   } else {
     console.log('Query: '+query);
-    const url = '/results.html?query='+query;
+    const url = '/results.html?query='+query+'&page=1';
     window.location = url;
   }
 }
