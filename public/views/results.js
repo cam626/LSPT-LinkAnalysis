@@ -3,11 +3,23 @@
  */
 function getQuery() {
   let url = window.location.href;
-  url = url.slice(url.indexOf('?query=') + 7);
+  const queryIndex = url.indexOf('?query=');
+  const pageIndex = url.indexOf('&page=');
+  url = url.slice(queryIndex + 7, pageIndex);
   const urlDecoded = decodeURIComponent(url);
   return urlDecoded;
 }
+/** Get the page number got clicked on
+ * @return {int} the page number selected
+ */
+function getSelectedPageNumber() {
+  const url = window.location.href;
+  const pageIndex = url.indexOf('&page=');
+  const pageNum = parseInt(url.slice(pageIndex + 6));
+  return pageNum;
+}
 
+const defaultNumResPerPage = 1;
 const Http = new XMLHttpRequest();
 const listItemStyle = 'line-height:normal;margin:auto';
 Http.open('GET', '/server/query?query=' + getQuery());
@@ -18,7 +30,28 @@ Http.onreadystatechange = () => {
     $('#results-num').text(pages.length == 1 ?
       'There is 1 result' :
       'There are ' + pages.length + ' results');
-    for (let i = 0; i < pages.length; i++) {
+    // display results based on the current page number
+    const currPageNum = getSelectedPageNumber();
+    const totalPageNum = Math.ceil(pages.length / defaultNumResPerPage);
+    // only show pagination if there are more than one page
+    if (pages.length > defaultNumResPerPage) {
+      const currUrl = window.location.href;
+      const pageIndex = currUrl.indexOf('&page=');
+      const newUrl = currUrl.slice(0, pageIndex);
+      for (let i = 1; i <= totalPageNum; i++) {
+        const redirectUrl = newUrl + '&page=' + (i);
+        if (i == currPageNum) {
+          $('#pagination-list').append('<li class="active"><a href="' +
+            redirectUrl + '">' + i + '</a></li>');
+        } else {
+          $('#pagination-list').append('<li><a href="' +
+            redirectUrl + '">' + i + '</a></li>');
+        }
+      }
+    }
+
+    for (let i = (currPageNum - 1) * defaultNumResPerPage;
+      i < (currPageNum) * defaultNumResPerPage; i++) {
       $('#list').append('<li id="list-el' +
         i + '" style="margin-bottom:20px">' +
         '<h2 style=' + listItemStyle + '><a class="nounderline" href=' +
@@ -26,6 +59,10 @@ Http.onreadystatechange = () => {
         '</a></h2><h4 style=' + listItemStyle + '><font color="#325b32">' +
         pages[i].url + '</font></h4><p style=' + listItemStyle + '>' +
         pages[i].snippet + '</p></li>');
+
+      if (i == pages.length - 1) {
+        return;
+      }
     }
   }
 };
@@ -57,7 +94,7 @@ function startSearch() {
     console.log('Empty query');
   } else {
     console.log('Query: '+query);
-    const url = '/results.html?query='+query;
+    const url = '/results.html?query='+query+'&page=1';
     window.location = url;
   }
 }
