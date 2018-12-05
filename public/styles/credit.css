@@ -5,11 +5,10 @@ body {
 
 #header-container {
   height: 250px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
-
 
 #credit-page-logo {
   width: 150px;
@@ -24,25 +23,19 @@ body {
   margin-top: 80px;
 }
 
-.container
-{
-    white-space: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
+.container {
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
-.slide
-{
-    display: inline-block;
-    vertical-align: bottom;
-    margin-right: 20px;
-    
-        
+.slide {
+  display: inline-block;
+  vertical-align: bottom;
+  margin-right: 20px;
 }
 
 #developer-name-img {
-    display: block;
-    margin-left: 100px;
-/*    margin-left: auto;*/
-/*    margin-right: auto;*/
+  display: block;
+  margin-left: 100px;
 }
