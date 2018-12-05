@@ -1,0 +1,48 @@
+body {
+  background-color: white;
+  overflow: scroll;
+}
+
+#header-container {
+  height: 250px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+#credit-page-logo {
+  width: 150px;
+  height: 150px;
+  margin-left: 70px;
+  margin-top: 20px;
+}
+
+#footer {
+  height: 150px;
+  margin-left: 100px;
+  margin-top: 80px;
+}
+
+.container
+{
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.slide
+{
+    display: inline-block;
+    vertical-align: bottom;
+    margin-right: 20px;
+    
+        
+}
+
+#developer-name-img {
+    display: block;
+    margin-left: 100px;
+/*    margin-left: auto;*/
+/*    margin-right: auto;*/
+}
