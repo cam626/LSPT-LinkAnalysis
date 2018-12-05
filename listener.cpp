@@ -58,6 +58,7 @@ std::string domainExtractor(std::string URL)
 
 static void* calculatePageRank(void * arg)
 {
+	// std::cout<<"tid: "<<(unsigned int)pthread_self()<<", calculating page rank"<<std::endl;
 	Listener *ptr = (Listener*) arg;
 	pthread_mutex_lock(&mutex);
 	std::string head;
@@ -78,7 +79,7 @@ static void* calculatePageRank(void * arg)
 			ptr->sender.requestRobot(id, *itr);
 		}
 	}
-	
+
 	return NULL;
 }
 
@@ -95,8 +96,8 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 {
 
 	// Copy the JSON from the request to a c-string to be used in the rapidJSON library
-	char json[1024];
-	bzero(&json, 1024);
+	char json[1048576];
+	bzero(&json, 1048576);
 	strcpy(json, request.body().c_str());
 
 	pthread_mutex_init(&mutex, NULL);
@@ -151,7 +152,7 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 		pthread_mutex_lock(&mutex);
 		heads.push(head);
-		pthread_mutex_unlock(&mutex);
+		//pthread_mutex_unlock(&mutex);
 		//update rank ----- need to be paralleled
 		//calculatePageRank(this);
 		// std::thread t(calculatePageRank,this);
