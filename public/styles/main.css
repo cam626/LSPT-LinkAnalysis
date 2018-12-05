@@ -50,13 +50,19 @@ body {
 }
 
 #footer-container {
-  display: flex;
-  justify-content: center;
 }
 
 #main-page-footer-image {
+  margin:auto;
+    display: flex;
+  justify-content: center;
   width: 277px;
   height: 277px;
+    
+}
+#image-label {
+    display: flex;
+  justify-content: center;
 }
 
 
@@ -68,7 +74,5 @@ body {
 
 .slide {
     display: inline-block;
-    vertical-align: top;
-
-    background-color: red;
+    vertical-align: bottom;
 }
