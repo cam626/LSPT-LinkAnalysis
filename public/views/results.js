@@ -2,8 +2,10 @@
  * @return {String} a string containing the query
  */
 function getQuery() {
-  const url = window.location.href;
-  return url.slice(url.indexOf('?query=') + 7);
+  let url = window.location.href;
+  url = url.slice(url.indexOf('?query=') + 7);
+  const urlDecoded = decodeURIComponent(url);
+  return urlDecoded;
 }
 
 const Http = new XMLHttpRequest();
