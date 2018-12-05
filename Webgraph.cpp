@@ -68,13 +68,13 @@ const std::vector<std::string> &Webgraph::getOutgoingLinks(const Node &n) const 
             Value: vector<float>, first element is the actual rank,
                                 second element is the normalized rank
 */
-const map<string, vector<float>> Webgraph::getAllRanks() const {
-    map<string, vector<float>> all_ranks;
+const map<string, pair<float, float>> Webgraph::getAllRanks() const {
+    map<string, pair<float, float>> all_ranks;
     //get all the acutal rank for each URL, and record the highest rank
     float rank_max = 0.0;
     for (uint i = 0; i < all_nodes.size(); ++i) {
-        all_ranks[all_nodes[i].getUrl()] = vector<float>();
-        all_ranks[all_nodes[i].getUrl()].push_back(all_nodes[i].getRank());
+        all_ranks[all_nodes[i].getUrl()] = pair<float, float>();
+        all_ranks[all_nodes[i].getUrl()].first = all_nodes[i].getRank();
         if (all_nodes[i].getRank() > rank_max) {
             rank_max = all_nodes[i].getRank();
         }
@@ -83,7 +83,7 @@ const map<string, vector<float>> Webgraph::getAllRanks() const {
     float scale = 10 / rank_max;
     //store the normalized rank
     for (uint i = 0; i < all_nodes.size(); ++i) {
-        all_ranks[all_nodes[i].getUrl()].push_back(all_nodes[i].getRank() * scale);
+        all_ranks[all_nodes[i].getUrl()].second = all_nodes[i].getRank() * scale;
     }
     return all_ranks;
 }
