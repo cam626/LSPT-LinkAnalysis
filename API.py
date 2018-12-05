@@ -34,10 +34,10 @@ async def post(request):
 		output_json = Text_Transformation_controller(crawling_data,initilization_data['max_n_gram_size'])
 		
 		#Send metadata to Link Analysis
-		r = requests.post(initilization_data['Link_Analysis_address'],output_json['metadata'])
+		r = requests.post(initilization_data['Link_Analysis_address'],json.dumps(output_json['metadata']))
 		
 		#Send data to Indexing
-		r = requests.post(initilization_data['Indexing_address'],output_json)
+		r = requests.post(initilization_data['Indexing_address'],json.dumps(output_json))
 		
 		#Tell Crawling that this was a success
 		response_obj = {"status": 200}
