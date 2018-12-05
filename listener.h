@@ -25,13 +25,11 @@ class Listener : public Http::Handler
 	Webgraph graph;
 	void onRequest(const Http::Request &request, Http::ResponseWriter response);
 	int processQueue();
-	//void* calculatePageRank(void * arg);
 	Sender sender;
 
   private:
 	std::set<std::string> blacklist;
 	std::map<std::string, std::vector<std::string>> queue;
-	
 
 	bool allowedURL(std::string URL);
 };

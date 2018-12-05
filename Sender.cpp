@@ -103,13 +103,35 @@ int Sender::addConnection(std::string host, int port)
 */
 int Sender::requestRobot(int sock, std::string domain)
 {
-	std::pair<std::string, int> connection = this->findConnectionBySocket(sock);
-	std::string message = "POST / HTTP/1.1\nUser-Agent: Link-Analysis\nContent-Type: application/json\nAccept: application/json\nHost: " +
-						  connection.first + "\n\n{\n\t'Robots': '" + domain + "/robots.txt'\n}\n";
+	std::string message = domain + "/robots.txt";
 
-	// TODO: handle response from Crawler
+	CURL *curl;
+	CURLcode res;
 
-	send(sock, message.c_str(), strlen(message.c_str()), 0);
+	/* In windows, this will init the winsock stuff */
+	curl_global_init(CURL_GLOBAL_ALL);
+
+	/* get a curl handle */
+	curl = curl_easy_init();
+	if (curl)
+	{
+		/* First set the URL that is about to receive our POST. This URL can
+    	just as well be a https:// URL if that is what should receive the
+       	data. */
+		curl_easy_setopt(curl, CURLOPT_URL, "http://blue-x.cs.rpi.edu/robots?robots=" + message);
+		/* Now specify the POST data */
+		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+
+		/* Perform the request, res will get the return code */
+		res = curl_easy_perform(curl);
+		/* Check for errors */
+		if (res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
+		/* always cleanup */
+		curl_easy_cleanup(curl);
+	}
+	curl_global_cleanup();
 	return 200;
 }
 
@@ -142,16 +164,16 @@ int Sender::sendBatch(int sock, std::vector<std::string> batch)
 	return send(sock, message.c_str(), strlen(message.c_str()), 0);
 }
 
-int Sender::sendRanks(int sock, std::map<std::string, std::vector<float>> ranks)
+int Sender::sendRanks(int sock, std::map<std::string, std::pair<float, float>> ranks)
 {
 	std::pair<std::string, int> connection = this->findConnectionBySocket(sock);
 	std::string message = "POST / HTTP/1.1\nUser-Agent: Link-Analysis\nContent-Type: application/json\nAccept: application/json\nHost: " +
 						  connection.first + "\n\n[\n";
 
-	std::map<std::string, std::vector<float>>::iterator itr;
+	std::map<std::string, std::pair<float, float>>::iterator itr;
 	for (itr = ranks.begin(); itr != ranks.end(); ++itr)
 	{
-		message += "\t{\n\t\t'url': '" + itr->first + "',\n\t\t'rank': '" + std::to_string(itr->second[0]) + "'\n},\n";
+		message += "\t{\n\t\t'url': '" + itr->first + "',\n\t\t'rank': '" + std::to_string(itr->second.first) + "'\n},\n";
 	}
 
 	message += "\n]\n";

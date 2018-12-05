@@ -12,13 +12,11 @@
     Returns: std::string with no http prefix.
 */
 
-
 //shared queue
 
 std::set<std::string> current_domains;
 std::queue<std::string> heads;
 pthread_mutex_t mutex;
-
 
 std::string stripHttp(std::string URL)
 {
@@ -56,29 +54,32 @@ std::string domainExtractor(std::string URL)
 	return temp.substr(0, ending);
 }
 
-static void* calculatePageRank(void * arg)
+static void *calculatePageRank(void *arg)
 {
-	// std::cout<<"tid: "<<(unsigned int)pthread_self()<<", calculating page rank"<<std::endl;
-	Listener *ptr = (Listener*) arg;
+	printf("Separate thread fetching from queue...\n");
+	Listener *ptr = (Listener *)arg;
 	pthread_mutex_lock(&mutex);
 	std::string head;
 	head = heads.front();
 	heads.pop();
 	pthread_mutex_unlock(&mutex);
+
+	printf("Updating Ranks...\n");
 	ptr->graph.updateRank(head);
+	printf("Ranks successfully updated.\n");
+
+	printf("Sending ranks to indexing...\n");
 	int id = ptr->sender.addConnection(INDEX_HOST, INDEX_PORT);
 	ptr->sender.sendRanks(id, ptr->graph.getAllRanks());
+	printf("Ranks sent\n");
 
-	// Send next to crawl to crawling team
-	id = ptr->sender.addConnection(CRAWL_HOST, CRAWL_PORT);
-	if (id != -1)
+	printf("Sending robot requests...\n");
+	std::set<std::string>::iterator itr;
+	for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
 	{
-		std::set<std::string>::iterator itr;
-		for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
-		{
-			ptr->sender.requestRobot(id, *itr);
-		}
+		ptr->sender.requestRobot(id, *itr);
 	}
+	printf("All robots sent.\n");
 
 	return NULL;
 }
@@ -140,27 +141,31 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 		{
 			std::string domain = domainExtractor(itr->GetString());
 			this->queue[domain].push_back(itr->GetString());
+
 			current_domains.insert(domain);
 
 			// Update graph
 			this->graph.addConnection(head, itr->GetString());
 		}
 
-
 		// Send response to client that the data was correctly parsed
 		response.send(Http::Code::Ok, "JSON successfully parsed.\n");
 
-		pthread_mutex_lock(&mutex);
-		heads.push(head);
-		//pthread_mutex_unlock(&mutex);
-		//update rank ----- need to be paralleled
-		//calculatePageRank(this);
-		// std::thread t(calculatePageRank,this);
-		if(pthread_create(&tid, NULL, calculatePageRank, this))
+		// iterate through the unique domains and add them to the queue to be sent to crawling
+		std::set<std::string>::iterator itr;
+		for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
+		{
+			pthread_mutex_lock(&mutex);
+			heads.push(*itr);
+			pthread_mutex_unlock(&mutex);
+		}
+
+		if (pthread_create(&tid, NULL, calculatePageRank, this))
 		{
 			printf("pthread_create failed!\n");
 			exit(0);
 		}
+		printf("Listener continuing.\n");
 	}
 	else if (doc.HasMember("Robots"))
 	{
