@@ -38,7 +38,7 @@ def main():
 
     startLetter1 = "a"
     while ord(startLetter1) <= ord("z"):
-        createJson(startLetter1, 100)
+        createJson(startLetter1, 1024)
         print ("curl -XPUT -H" + "\'" + "Content-Type: application/json" "\' " + "localhost:9080/family_person?pretty -d@test_" + startLetter1 + ".json")
         startLetter1 = chr(ord(startLetter1)+1)
 

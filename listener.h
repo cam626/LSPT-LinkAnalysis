@@ -20,15 +20,15 @@ using namespace Pistache;
 
 class Listener : public Http::Handler
 {
-  public:
+public:
 	HTTP_PROTOTYPE(Listener);
 	Webgraph graph;
 	void onRequest(const Http::Request &request, Http::ResponseWriter response);
-	int processQueue();
+	void processQueue();
 	Sender sender;
-
-  private:
 	std::set<std::string> blacklist;
+
+private:
 	std::map<std::string, std::vector<std::string>> queue;
 
 	bool allowedURL(std::string URL);

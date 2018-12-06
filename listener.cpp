@@ -77,9 +77,35 @@ static void *calculatePageRank(void *arg)
 	std::set<std::string>::iterator itr;
 	for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
 	{
-		ptr->sender.requestRobot(id, *itr);
+		std::string response = ptr->sender.requestRobot(id, *itr);
+
+		// parse the json in response
+		rapidjson::Document doc;
+		rapidjson::ParseResult ok = doc.Parse(response.c_str());
+
+		std::cout << response << std::endl;
+
+		if (!ok)
+		{
+			std::cout << "Unable to parse response from crawler" << std::endl;
+			return NULL;
+		}
+
+		if (doc.IsArray())
+		{
+			const rapidjson::Value &json = doc;
+
+			for (rapidjson::Value::ConstValueIterator itr = json.Begin(); itr != json.End(); ++itr)
+			{
+				ptr->blacklist.insert(itr->GetString());
+			}
+		}
 	}
 	printf("All robots sent.\n");
+
+	printf("POSTing next to crawl...\n");
+
+	ptr->processQueue();
 
 	return NULL;
 }
@@ -167,28 +193,6 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 		}
 		printf("Listener continuing.\n");
 	}
-	else if (doc.HasMember("Robots"))
-	{
-		// This section should be from the Crawling team. It should be a response to our request for a robots.txt file
-		if (!doc.HasMember("Disallowed") || !doc["Disallowed"].IsArray() || !doc.HasMember("Domain"))
-		{
-			response.send(Http::Code::Bad_Request, "Required fields missing.\n");
-			return;
-		}
-
-		std::string domain = doc["Domain"].GetString();
-		const rapidjson::Value &disallowed = doc["Disallowed"];
-		rapidjson::Value::ConstValueIterator itr;
-		for (itr = disallowed.Begin(); itr != disallowed.End(); ++itr)
-		{
-			this->blacklist.insert(domain + itr->GetString());
-		}
-
-		response.send(Http::Code::Ok, "Blacklist successfully updated.\n");
-
-		if (this->queue.size() != 0)
-			this->processQueue();
-	}
 	else if (doc.HasMember("BadURLs"))
 	{
 		// This section should be from the Crawling team. It should be a list of URLs that returned 404 or other errors
@@ -222,11 +226,9 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 	Returns: The number of links sent to the crawling team
 */
-int Listener::processQueue()
+void Listener::processQueue()
 {
-	// Make sure there is a connection with the crawling team
-	int id = this->sender.addConnection(CRAWL_HOST, CRAWL_PORT);
-	int response = -1;
+	std::string response;
 	std::map<std::string, std::vector<std::string>>::iterator itr;
 	for (itr = this->queue.begin(); itr != this->queue.end(); ++itr)
 	{
@@ -244,9 +246,10 @@ int Listener::processQueue()
 		}
 		itr->second.erase(itr->second.begin(), itr->second.end());
 
-		response = this->sender.sendBatch(id, batch);
+		response = this->sender.sendBatch(batch);
+
+		std::cout << "Crawl Response: " << response << std::endl;
 	}
-	return response;
 }
 
 /*
