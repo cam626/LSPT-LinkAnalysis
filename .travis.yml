@@ -1,7 +1,7 @@
 language: python
 python:
   - "3.6"
-script: python setup.py test
-branches:
-  only:
-    - master
+install:
+  - pip install -r requirements.txt
+script:
+  - pytest

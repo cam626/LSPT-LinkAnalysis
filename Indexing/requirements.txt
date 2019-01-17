@@ -1,0 +1,7 @@
+requests
+
+aiohttp
+
+psycopg2-binary
+
+pyyaml
