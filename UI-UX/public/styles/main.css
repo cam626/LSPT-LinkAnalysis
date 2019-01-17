@@ -1,0 +1,78 @@
+body {
+  min-width: 755px;
+}
+
+/* Searchbar should contain the query relating to the results displayed */
+#searchbar {
+  position: relative;
+  left: 7%;
+  width: 60%;
+  height: 25px;
+  border-radius: 15px;
+  text-align: left;
+  color: black;
+  border: 0px #000000 solid;
+  padding: 5px 5px 5px 30px;
+  background: #f2f2f2 url("/SearchIcon.png") left no-repeat;
+  background-size: 25px 25px;
+  background-position: 8px 5px;
+  font-size: 15px;
+  padding-left: 40px;
+}
+
+/* Go button next to the search bar */
+#go-button {
+  position: relative;
+  left: 10%;
+  width: 100px;
+  height: 35px;
+  border-radius: 5px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  font-size: 20px;
+  z-index: 1;
+}
+
+
+#header-container {
+  height: 250px;
+}
+
+#main-page-logo {
+  width: 150px;
+  height: 150px;
+  margin-left: 70px;
+  margin-top: 20px;
+}
+
+#search-bar-container {
+  height: 150px;
+}
+
+#footer-container {
+}
+
+#main-page-footer-image {
+  margin:auto;
+    display: flex;
+  justify-content: center;
+  width: 277px;
+  height: 277px;
+    
+}
+#image-label {
+    display: flex;
+  justify-content: center;
+}
+
+
+.container {
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.slide {
+    display: inline-block;
+    vertical-align: bottom;
+}

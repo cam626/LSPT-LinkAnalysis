@@ -1,0 +1,39 @@
+{
+  "name": "ui-ux",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "npm run lint && npm run test",
+    "start": "./node_modules/.bin/nodemon ./server/app.js",
+    "test": "node ./server/tests",
+    "lint": "./node_modules/.bin/eslint . --fix",
+    "pre-commit-message": "echo 'Running Pre-commit Linter (use --no-verify if you need to commit something that fails to pass the linter)' && exit 0"
+  },
+  "pre-commit": [
+    "pre-commit-message",
+    "lint"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "pg": "^7.6.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.8.0",
+    "eslint-config-google": "^0.11.0",
+    "event-stream": "3.3.4",
+    "nodemon": "^1.18.6",
+    "pre-commit": "^1.2.2"
+  },
+  "eslintConfig": {
+    "extends": "google",
+    "parserOptions": {
+      "ecmaVersion": 2017
+    },
+    "env": {
+      "es6": true
+    }
+  }
+}
