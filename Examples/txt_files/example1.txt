@@ -1,0 +1,15 @@
+a hand written text file.
+This file should be
+long enough to be
+interesting 
+with a few 
+noteable n-grams
+but, not long enough to 
+take too much time. the rain 
+in spain falls mainly on the plain.
+she turned me into a newt.
+a newt?
+I got better.
+sally sells sea shells by the sea shore
+a great eye, wreathed in flame
+they're taking the hobbits to isengard
