@@ -2,96 +2,8 @@
 #include <iostream>
 
 /*
-	Finds a connection corresponding to the given information.
-
-	Parameters:
-		- std::string host: The host of the connection to search for
-		- int port: The port of the connection to search for
-
-	Returns: The socket file descriptor corresponding to the described connection
-				if it exists, -1 otherwise.
+	Callback function for when we receive a response from a request to the crawler.
 */
-int Sender::findConnection(std::string host, int port)
-{
-	std::pair<std::string, int> temp;
-	temp.first = host;
-	temp.second = port;
-	std::map<int, std::pair<std::string, int>>::iterator itr;
-	for (itr = this->connections.begin(); itr != this->connections.end(); ++itr)
-	{
-		if (itr->second == temp)
-		{
-			return itr->first;
-		}
-	}
-	return -1;
-}
-
-/*
-	Finds a connection that corresponds to the socket given.
-
-	Parameters:
-		- int sock: The socket to search for
-
-	Returns: The connection information corresponding to the given socket.
-*/
-std::pair<std::string, int> Sender::findConnectionBySocket(int sock)
-{
-	if (this->connections.find(sock) != this->connections.end())
-	{
-		return this->connections[sock];
-	}
-	std::pair<std::string, int> temp;
-	temp.first = "";
-	temp.second = -1;
-	return temp;
-}
-
-/*
-	Adds a connection with the given host on the given port if it does not exist
-	or finds the connection if one already exists.
-
-	Parameters:
-		- std::string host: The host to connect to
-		- int port: The port to connect on
-
-	Returns: The socket file descriptor corresponding to the new or existing connection.
-*/
-int Sender::addConnection(std::string host, int port)
-{
-	int temp = this->findConnection(host, port);
-	if (temp >= 0)
-	{
-		return temp;
-	}
-
-	struct sockaddr_in serv_addr;
-	int sock = socket(AF_INET, SOCK_STREAM, 0);
-	bzero(&serv_addr, sizeof(serv_addr));
-
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons(port);
-	if (inet_pton(AF_INET, host.c_str(), &serv_addr.sin_addr.s_addr) <= 0)
-	{
-		printf("Malformed host.\n");
-		return -1;
-	}
-
-	if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-	{
-		printf("Unable to establish a connection to the host.\n");
-		return -1;
-	}
-
-	std::pair<std::string, int> temp2;
-	temp2.first = host;
-	temp2.second = port;
-
-	this->connections[sock] = temp2;
-
-	return sock;
-}
-
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
 	((std::string *)userp)->append((char *)contents, size * nmemb);
@@ -108,10 +20,10 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
 
 	Returns: The HTTP response code given in the response from the crawling team.
 */
-std::string Sender::requestRobot(int sock, std::string domain)
+std::string Sender::requestRobot(std::string domain)
 {
 	std::string message = domain + "/robots.txt";
-	std::string request_url = "http://blue-x.cs.rpi.edu/robots?url=http://" + message;
+	std::string request_url = "127.0.0.1:9877?url=http://" + message;
 	std::string readBuffer;
 
 	CURL *curl;
@@ -210,21 +122,9 @@ std::string Sender::sendBatch(std::vector<std::string> batch)
 	return readBuffer;
 }
 
-int Sender::sendRanks(int sock, std::map<std::string, std::pair<float, float>> ranks)
+int Sender::sendRanks(std::map<std::string, std::pair<float, float>> ranks)
 {
-	std::pair<std::string, int> connection = this->findConnectionBySocket(sock);
-	std::string message = "POST / HTTP/1.1\nUser-Agent: Link-Analysis\nContent-Type: application/json\nAccept: application/json\nHost: " +
-						  connection.first + "\n\n[\n";
+	// TODO: Rewrite this to use CURL
 
-	std::map<std::string, std::pair<float, float>>::iterator itr;
-	for (itr = ranks.begin(); itr != ranks.end(); ++itr)
-	{
-		message += "\t{\n\t\t'url': '" + itr->first + "',\n\t\t'rank': '" + std::to_string(itr->second.first) + "'\n},\n";
-	}
-
-	message += "\n]\n";
-	// TODO: handle response from Crawler
-
-	send(sock, message.c_str(), strlen(message.c_str()), 0);
-	return 200;
+	return -1;
 }

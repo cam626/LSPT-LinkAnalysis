@@ -69,15 +69,14 @@ static void *calculatePageRank(void *arg)
 	printf("Ranks successfully updated.\n");
 
 	printf("Sending ranks to indexing...\n");
-	int id = ptr->sender.addConnection(INDEX_HOST, INDEX_PORT);
-	ptr->sender.sendRanks(id, ptr->graph.getAllRanks());
+	ptr->sender.sendRanks(ptr->graph.getAllRanks());
 	printf("Ranks sent\n");
 
 	printf("Sending robot requests...\n");
 	std::set<std::string>::iterator itr;
 	for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
 	{
-		std::string response = ptr->sender.requestRobot(id, *itr);
+		std::string response = ptr->sender.requestRobot(*itr);
 
 		// parse the json in response
 		rapidjson::Document doc;
