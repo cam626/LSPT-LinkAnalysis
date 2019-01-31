@@ -1,6 +1,12 @@
 #include "Sender.h"
 #include <iostream>
 
+#define CRAWL_HOST "129.161.139.90"
+#define CRAWL_PORT "3000"
+
+#define INDEXING_HOST "127.0.0.1"
+#define INDEXING_PORT "9876"
+
 /*
 	Callback function for when we receive a response from a request to the crawler.
 */
@@ -23,7 +29,7 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
 std::string Sender::requestRobot(std::string domain)
 {
 	std::string message = domain + "/robots.txt";
-	std::string request_url = "127.0.0.1:9877?url=http://" + message;
+	std::string request_url = "http://" CRAWL_HOST ":" CRAWL_PORT "/robots?url=http://" + message;
 	std::string readBuffer;
 
 	CURL *curl;
@@ -36,7 +42,7 @@ std::string Sender::requestRobot(std::string domain)
 	curl = curl_easy_init();
 	if (curl)
 	{
-		/* First set the URL that is about to receive our POST. This URL can
+		/* First set the URL that is about to receive our GET. This URL can
     	just as well be a https:// URL if that is what should receive the
        	data. */
 		curl_easy_setopt(curl, CURLOPT_URL, request_url.c_str());
@@ -73,22 +79,25 @@ std::string Sender::requestRobot(std::string domain)
 */
 std::string Sender::sendBatch(std::vector<std::string> batch)
 {
-	std::string message = "'URLs': [";
-
+	std::string message = "{\"URLS\": [";
+	std::string url = CRAWL_HOST ":" CRAWL_PORT "/crawl";
 	for (size_t i = 0; i < batch.size() - 1; ++i)
 	{
-		message += "'" + batch[i] + "',";
+		message += "\"http://" + batch[i] + "\",";
 	}
-	message += "'" + batch[batch.size() - 1] + "'";
+	message += "\"http://" + batch[batch.size() - 1] + "\"";
 
 	// TODO: handle response from Crawler
 
 	message += "]\n}\n";
 
+	std::cout << message << std::endl;
+
 	std::string readBuffer;
 
 	CURL *curl;
 	CURLcode res;
+	struct curl_slist *headers = NULL;
 
 	/* In windows, this will init the winsock stuff */
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -100,10 +109,12 @@ std::string Sender::sendBatch(std::vector<std::string> batch)
 		/* First set the URL that is about to receive our POST. This URL can
     	just as well be a https:// URL if that is what should receive the
        	data. */
-		curl_easy_setopt(curl, CURLOPT_URL, "http://blue-x.cs.rpi.edu/crawl");
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		/* Now specify the POST data */
-		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, message);
+		curl_easy_setopt(curl, CURLOPT_HTTPPOST, 12L);
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, message.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
 
@@ -122,9 +133,57 @@ std::string Sender::sendBatch(std::vector<std::string> batch)
 	return readBuffer;
 }
 
-int Sender::sendRanks(std::map<std::string, std::pair<float, float>> ranks)
+std::string Sender::sendRanks(std::map<std::string, std::pair<float, float>> ranks)
 {
 	// TODO: Rewrite this to use CURL
+	std::string url = INDEXING_HOST ":" INDEXING_PORT;
+	std::string readBuffer;
+	std::string message = "{\"URLS\": [";
+	std::map<std::string, std::pair<float, float>>::iterator itr = ranks.begin();
 
-	return -1;
+	while (itr != ranks.end())
+	{
+		message += "[" + itr->first + ", " + std::to_string(itr->second.first) + "]";
+
+		if (++itr != ranks.end())
+			message += ", ";
+	}
+
+	message += "]}";
+
+	CURL *curl;
+	CURLcode res;
+
+	/* In windows, this will init the winsock stuff */
+	curl_global_init(CURL_GLOBAL_ALL);
+
+	/* get a curl handle */
+	curl = curl_easy_init();
+	if (curl)
+	{
+		/* First set the URL that is about to receive our POST. This URL can
+    	just as well be a https:// URL if that is what should receive the
+       	data. */
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		/* Now specify the POST data */
+		curl_easy_setopt(curl, CURLOPT_HTTPPOST, 1L);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, message.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
+		/* Perform the request, res will get the return code */
+		res = curl_easy_perform(curl);
+		/* Check for errors */
+		if (res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
+		std::cout << "Received crawl response from crawler.\nUpdating graph..." << std::endl;
+
+		/* always cleanup */
+		curl_easy_cleanup(curl);
+	}
+	curl_global_cleanup();
+
+	// Return the response that we got from Indexing
+	return readBuffer;
 }

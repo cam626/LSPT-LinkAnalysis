@@ -12,7 +12,7 @@ class Sender
 	Sender() {}
 	std::string requestRobot(std::string domain);
 	std::string sendBatch(std::vector<std::string> batch);
-	int sendRanks(std::map<std::string, std::pair<float, float>> ranks);
+	std::string sendRanks(std::map<std::string, std::pair<float, float>> ranks);
 
   private:
 	std::map<int, std::pair<std::string, int>> connections;
