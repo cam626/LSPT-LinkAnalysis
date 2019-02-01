@@ -21,8 +21,7 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
 	for a specific domain.
 
 	Parameters:
-		- int sock: A previously opened socket to communicate with the crawling team
-		- std::string domain: The domain to request a robots.txt file for
+		- std::string domain: The domain to request a robots.txt file for (without http(s)://)
 
 	Returns: The HTTP response code given in the response from the crawling team.
 */
@@ -126,6 +125,7 @@ std::string Sender::sendBatch(std::vector<std::string> batch)
 
 		std::cout << "Received crawl response from crawler.\nUpdating graph..." << std::endl;
 
+		curl_slist_free_all(headers);
 		/* always cleanup */
 		curl_easy_cleanup(curl);
 	}
@@ -135,7 +135,7 @@ std::string Sender::sendBatch(std::vector<std::string> batch)
 
 std::string Sender::sendRanks(std::map<std::string, std::pair<float, float>> ranks)
 {
-	// TODO: Rewrite this to use CURL
+	// TODO: Create false indexing simulator to respond to this request (for testing)
 	std::string url = INDEXING_HOST ":" INDEXING_PORT;
 	std::string readBuffer;
 	std::string message = "{\"URLS\": [";
@@ -151,6 +151,7 @@ std::string Sender::sendRanks(std::map<std::string, std::pair<float, float>> ran
 
 	message += "]}";
 
+	// TODO: possible move the curl object to the listener object
 	CURL *curl;
 	CURLcode res;
 

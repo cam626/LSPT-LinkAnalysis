@@ -3,6 +3,11 @@
 #include <thread>
 #include <queue>
 #include <pthread.h>
+
+std::set<std::string> current_domains; // Any domains that are currently in the queue to be processed
+std::queue<std::string> heads;		   // Queue of URLs that should be sent to the crawler (if applicable)
+pthread_mutex_t mutex;
+
 /*
     Takes a URL and removes the http prefix if it exists.
 
@@ -11,13 +16,6 @@
 
     Returns: std::string with no http prefix.
 */
-
-//shared queue
-
-std::set<std::string> current_domains;
-std::queue<std::string> heads;
-pthread_mutex_t mutex;
-
 std::string stripHttp(std::string URL)
 {
 	// Make sure we don't try to take the substring if it isn't long enough
@@ -57,7 +55,7 @@ std::string domainExtractor(std::string URL)
 static void *calculatePageRank(void *arg)
 {
 	printf("Separate thread fetching from queue...\n");
-	Listener *ptr = (Listener *)arg;
+	Listener *listener = (Listener *)arg;
 	pthread_mutex_lock(&mutex);
 	std::string head;
 	head = heads.front();
@@ -65,47 +63,58 @@ static void *calculatePageRank(void *arg)
 	pthread_mutex_unlock(&mutex);
 
 	printf("Updating Ranks...\n");
-	ptr->graph.updateRank(head);
+	listener->graph.updateRank(head);
 	printf("Ranks successfully updated.\n");
 
 	printf("Sending ranks to indexing...\n");
-	ptr->sender.sendRanks(ptr->graph.getAllRanks());
+	listener->sender.sendRanks(listener->graph.getAllRanks());
 	printf("Ranks sent\n");
 
-	printf("Sending robot requests...\n");
+	printf("Sending robot requests (one per domain)...\n");
 	std::set<std::string>::iterator itr;
 	for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
 	{
-		std::string response = ptr->sender.requestRobot(*itr);
+		std::string response = listener->sender.requestRobot(*itr);
 
 		// parse the json in response
 		rapidjson::Document doc;
 		rapidjson::ParseResult ok = doc.Parse(response.c_str());
 
-		std::cout << response << std::endl;
+		std::cout << "Response to request for robots on " << *itr << ":\n"
+				  << response
+				  << std::endl
+				  << std::endl;
 
-		if (!ok)
+		if (!ok) // ok holds the status from parsing the json response
 		{
 			std::cout << "Unable to parse response from crawler" << std::endl;
-			return NULL;
+			continue; // This will move on to the next domain
+					  // Could be caused by the crawler not being able to parse the request that we send
+					  // Or from a domain that does not exit
+					  // TODO: error handling (especially for non-existent domains)
 		}
 
+		// Partially validate the format of the data that we received
 		if (doc.IsArray())
 		{
 			const rapidjson::Value &json = doc;
 
+			// Add each response subdomain to the list of subdomains that we cannot index.
+			// TODO: Add feature to remove subdirectories from the blacklist if they are no longer on the robots.txt
 			for (rapidjson::Value::ConstValueIterator itr = json.Begin(); itr != json.End(); ++itr)
 			{
-				ptr->blacklist.insert(itr->GetString());
+				listener->blacklist.insert(itr->GetString());
 			}
 		}
 	}
-	printf("All robots sent.\n");
+	printf("Done sending robots.\n");
 
 	printf("POSTing next to crawl...\n");
 
-	ptr->processQueue();
+	// Tells the Crawler what to crawl next
+	listener->processQueue();
 
+	// This thread will terminate
 	return NULL;
 }
 
@@ -122,10 +131,12 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 {
 
 	// Copy the JSON from the request to a c-string to be used in the rapidJSON library
+	// TODO: write simple JSON parser to remove dependency on rapidJSON
 	char json[1048576];
 	bzero(&json, 1048576);
 	strcpy(json, request.body().c_str());
 
+	// TODO: possible make the mutex belong to the listener object?
 	pthread_mutex_init(&mutex, NULL);
 	pthread_t tid;
 
@@ -180,11 +191,14 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 		std::set<std::string>::iterator itr;
 		for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
 		{
+			// Ensure we do not attempt to access the queue simultaneously
 			pthread_mutex_lock(&mutex);
 			heads.push(*itr);
 			pthread_mutex_unlock(&mutex);
 		}
 
+		// The new thread will be responsible for updating pageranks as well as communicating
+		// results to the crawler and indexer.
 		if (pthread_create(&tid, NULL, calculatePageRank, this))
 		{
 			printf("pthread_create failed!\n");
@@ -195,7 +209,8 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 	else if (doc.HasMember("BadURLs"))
 	{
 		// This section should be from the Crawling team. It should be a list of URLs that returned 404 or other errors
-		// during crawling.
+		// during crawling. We will add a timeout to the node to say that we should not revisit
+		// it for a longer period of time because it is less likely to be active.
 
 		if (!doc["BadURLs"].IsArray())
 		{
@@ -210,7 +225,8 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 			// TODO: set timeout on node in the graph
 		}
 
-		response.send(Http::Code::Ok, "Node status updated.\n");
+		// TODO: check timouts for each node that we are sending to the crawler (and to indexing?)
+		response.send(Http::Code::Ok, "Node statuses updated.\n");
 	}
 	else
 	{
