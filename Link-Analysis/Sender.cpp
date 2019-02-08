@@ -78,6 +78,22 @@ std::string Sender::requestRobot(std::string domain)
 */
 std::string Sender::sendBatch(std::vector<std::string> batch)
 {
+
+	/*
+		Construct the message -
+			The message to the crawler is sending the next batch of URLs to Crawl. This is a JSON POST formatted
+			as follows:
+
+			{
+				"URLS": [
+					"http://www.rpi.edu",
+					"http://www.rpi.edu/example.php",
+					"http://www.rpi.edu/example2.php"
+				]
+			}
+
+			All of the URLs should be on the same domain and there should be no duplicates.
+	*/
 	std::string message = "{\"URLS\": [";
 	std::string url = CRAWL_HOST ":" CRAWL_PORT "/crawl";
 	for (size_t i = 0; i < batch.size() - 1; ++i)
@@ -86,12 +102,11 @@ std::string Sender::sendBatch(std::vector<std::string> batch)
 	}
 	message += "\"http://" + batch[batch.size() - 1] + "\"";
 
-	// TODO: handle response from Crawler
-
 	message += "]\n}\n";
 
 	std::cout << message << std::endl;
 
+	// This will be to receive the response from the crawler (and returned by this function)
 	std::string readBuffer;
 
 	CURL *curl;
@@ -125,8 +140,8 @@ std::string Sender::sendBatch(std::vector<std::string> batch)
 
 		std::cout << "Received crawl response from crawler.\nUpdating graph..." << std::endl;
 
-		curl_slist_free_all(headers);
 		/* always cleanup */
+		curl_slist_free_all(headers);
 		curl_easy_cleanup(curl);
 	}
 	curl_global_cleanup();
@@ -138,6 +153,19 @@ std::string Sender::sendRanks(std::map<std::string, std::pair<float, float>> ran
 	// TODO: Create false indexing simulator to respond to this request (for testing)
 	std::string url = INDEXING_HOST ":" INDEXING_PORT;
 	std::string readBuffer;
+
+	/*
+		The ranks sent to indexing are the non-normalized ranks (for now).
+
+		Ex.
+		{
+			"URLS": [
+				["www.a.com", 1.234],
+				["www.b.com", 2.341],
+				["www.c.com", 0.566]
+			]
+		}
+	*/
 	std::string message = "{\"URLS\": [";
 	std::map<std::string, std::pair<float, float>>::iterator itr = ranks.begin();
 
@@ -178,7 +206,7 @@ std::string Sender::sendRanks(std::map<std::string, std::pair<float, float>> ran
 		if (res != CURLE_OK)
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 
-		std::cout << "Received crawl response from crawler.\nUpdating graph..." << std::endl;
+		std::cout << "Received crawl response from indexing. (No Action Required)" << std::endl;
 
 		/* always cleanup */
 		curl_easy_cleanup(curl);

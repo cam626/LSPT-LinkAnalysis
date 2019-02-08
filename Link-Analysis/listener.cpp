@@ -3,6 +3,9 @@
 #include <thread>
 #include <queue>
 #include <pthread.h>
+#include <chrono>
+#include <ctime>
+#include "Node.h"
 
 std::set<std::string> current_domains; // Any domains that are currently in the queue to be processed
 std::queue<std::string> heads;		   // Queue of URLs that should be sent to the crawler (if applicable)
@@ -136,6 +139,8 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 	bzero(&json, 1048576);
 	strcpy(json, request.body().c_str());
 
+	printf("%s\n", json);
+
 	// TODO: possible make the mutex belong to the listener object?
 	pthread_mutex_init(&mutex, NULL);
 	pthread_t tid;
@@ -175,6 +180,22 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 		for (rapidjson::Value::ConstValueIterator itr = tails_json.Begin(); itr != tails_json.End(); ++itr)
 		{
+			if (graph.hasLink(itr->GetString()))
+			{
+				// Check if a sufficient amount of time has passed (Minimum 1 day)
+				Node temp_node = graph.getNodeFromLink(itr->GetString());
+				time_t timeout = temp_node.getTimestamp();
+
+				// TODO: Add custom timeouts to links if they request to be visited less often
+				if (timeout > time(0) + (60 * 60 * 24))
+				{
+					// Not enough time has passed -> skip this link
+					// This will prevent the link from being added to the queue
+					// which in turn means that it will not be sent to the crawler
+					continue;
+				}
+			}
+
 			std::string domain = domainExtractor(itr->GetString());
 			this->queue[domain].push_back(itr->GetString());
 
@@ -222,10 +243,13 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 		rapidjson::Value::ConstValueIterator itr;
 		for (itr = broken.Begin(); itr != broken.End(); ++itr)
 		{
-			// TODO: set timeout on node in the graph
+			// The timeout for broken URLs should be longer than the standard timeout
+			time_t t = time(0);
+
+			Node temp_node = graph.getNodeFromLink(itr->GetString());
+			temp_node.updateTimestamp(t + (60 * 60 * 24 * 3)); // Right now plus 3 days (in seconds)
 		}
 
-		// TODO: check timouts for each node that we are sending to the crawler (and to indexing?)
 		response.send(Http::Code::Ok, "Node statuses updated.\n");
 	}
 	else

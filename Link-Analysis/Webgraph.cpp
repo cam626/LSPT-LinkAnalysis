@@ -13,13 +13,17 @@ typedef unsigned int uint;
 
 using namespace std;
 
-const vector<Node> &Webgraph::getAllNodes() const {
+const vector<Node> &Webgraph::getAllNodes() const
+{
     return all_nodes;
 }
 
-bool Webgraph::hasLink(const string &url_) const {
-    for (uint i = 0; i < all_nodes.size(); ++i) {
-        if (all_nodes[i].getUrl() == url_) {
+bool Webgraph::hasLink(const string &url_) const
+{
+    for (uint i = 0; i < all_nodes.size(); ++i)
+    {
+        if (all_nodes[i].getUrl() == url_)
+        {
             return true;
         }
     }
@@ -27,10 +31,13 @@ bool Webgraph::hasLink(const string &url_) const {
 }
 
 // Assume the node with the provided url exists
-const Node &Webgraph::getNodeFromLink(const std::string &url_) const {
+const Node &Webgraph::getNodeFromLink(const std::string &url_) const
+{
     uint i = 0;
-    for (; i < all_nodes.size(); ++i) {
-        if (all_nodes[i].getUrl() == url_) {
+    for (; i < all_nodes.size(); ++i)
+    {
+        if (all_nodes[i].getUrl() == url_)
+        {
             break;
         }
     }
@@ -38,10 +45,13 @@ const Node &Webgraph::getNodeFromLink(const std::string &url_) const {
 }
 
 // Assume the node with the provided url exists
-uint Webgraph::getNodeIndexFromLink(const std::string &url_) const {
+uint Webgraph::getNodeIndexFromLink(const std::string &url_) const
+{
     uint i = 0;
-    for (; i < all_nodes.size(); ++i) {
-        if (all_nodes[i].getUrl() == url_) {
+    for (; i < all_nodes.size(); ++i)
+    {
+        if (all_nodes[i].getUrl() == url_)
+        {
             break;
         }
     }
@@ -49,12 +59,14 @@ uint Webgraph::getNodeIndexFromLink(const std::string &url_) const {
 }
 
 // Assume the provided node exists
-const std::vector<std::string> &Webgraph::getIncomingLinks(const Node &n) const {
+const std::vector<std::string> &Webgraph::getIncomingLinks(const Node &n) const
+{
     return n.getParents();
 }
 
 // Assume the provided node exists
-const std::vector<std::string> &Webgraph::getOutgoingLinks(const Node &n) const {
+const std::vector<std::string> &Webgraph::getOutgoingLinks(const Node &n) const
+{
     return n.getChildren();
 }
 
@@ -68,41 +80,50 @@ const std::vector<std::string> &Webgraph::getOutgoingLinks(const Node &n) const 
             Value: vector<float>, first element is the actual rank,
                                 second element is the normalized rank
 */
-const map<string, pair<float, float>> Webgraph::getAllRanks() const {
+const map<string, pair<float, float>> Webgraph::getAllRanks() const
+{
     map<string, pair<float, float>> all_ranks;
     //get all the acutal rank for each URL, and record the highest rank
     float rank_max = 0.0;
-    for (uint i = 0; i < all_nodes.size(); ++i) {
+    for (uint i = 0; i < all_nodes.size(); ++i)
+    {
         all_ranks[all_nodes[i].getUrl()] = pair<float, float>();
         all_ranks[all_nodes[i].getUrl()].first = all_nodes[i].getRank();
-        if (all_nodes[i].getRank() > rank_max) {
+        if (all_nodes[i].getRank() > rank_max)
+        {
             rank_max = all_nodes[i].getRank();
         }
     }
     //calculate the scale factor
     float scale = 10 / rank_max;
     //store the normalized rank
-    for (uint i = 0; i < all_nodes.size(); ++i) {
+    for (uint i = 0; i < all_nodes.size(); ++i)
+    {
         all_ranks[all_nodes[i].getUrl()].second = all_nodes[i].getRank() * scale;
     }
     return all_ranks;
 }
 
-bool Webgraph::addLink(const string &url_) {
-    if (hasLink(url_)) {
+bool Webgraph::addLink(const string &url_)
+{
+    if (hasLink(url_))
+    {
         return false;
     }
-    Node n(url_);
+    Node n(url_, time(0));
     all_nodes.push_back(n);
     return true;
 }
 
 bool Webgraph::addConnection(const std::string &from_url,
-                             const std::string &to_url) {
-    if (hasLink(from_url) == false) {
+                             const std::string &to_url)
+{
+    if (hasLink(from_url) == false)
+    {
         addLink(from_url);
     }
-    if (hasLink(to_url) == false) {
+    if (hasLink(to_url) == false)
+    {
         addLink(to_url);
     }
     // update Node info
@@ -120,7 +141,8 @@ bool Webgraph::addConnection(const std::string &from_url,
     Parameters:
         string url_: The URL for the starting node for update
 */
-void Webgraph::updateRank(const string &url_) {
+void Webgraph::updateRank(const string &url_)
+{
     //inital the queue and start the iterative update
     queue<uint> work_queue;
     uint index_start = getNodeIndexFromLink(url_);
@@ -137,9 +159,11 @@ void Webgraph::updateRank(const string &url_) {
         queue<uint> work_queue: The queue that store the URL
                                 nodes' index that need to be updated
 */
-void Webgraph::updateHelper(queue<uint> work_queue) {
+void Webgraph::updateHelper(queue<uint> work_queue)
+{
     //finish condition
-    if (work_queue.empty()) {
+    if (work_queue.empty())
+    {
         return;
     }
     //update the rank of the node that is on the top
@@ -149,7 +173,8 @@ void Webgraph::updateHelper(queue<uint> work_queue) {
     //calculate new rank based on incoming nodes
     vector<string> parents = getIncomingLinks(all_nodes[index_current]);
     float new_rank = 0;
-    for (uint i = 0; i < parents.size(); ++i) {
+    for (uint i = 0; i < parents.size(); ++i)
+    {
         float from_rank = all_nodes[getNodeIndexFromLink(parents[i])].getRank();
         int outgoing_number = getOutgoingLinks(all_nodes[getNodeIndexFromLink(parents[i])]).size();
         new_rank += from_rank / outgoing_number;
@@ -159,15 +184,18 @@ void Webgraph::updateHelper(queue<uint> work_queue) {
     //update the rank
     all_nodes[index_current].updateRank(new_rank);
     //check converge, threshold current set to 0.01%
-    if (float(abs(new_rank - old_rank) / old_rank) < rank_threshold) {
+    if (float(abs(new_rank - old_rank) / old_rank) < rank_threshold)
+    {
         //converged, current node's children would not add to queue
         updateHelper(work_queue);
     }
-    else {
+    else
+    {
         //not converged, all current node's children to queue
         vector<string> children = getOutgoingLinks(all_nodes[index_current]);
 
-        for (uint i = 0; i < children.size(); ++i) {
+        for (uint i = 0; i < children.size(); ++i)
+        {
             work_queue.push(getNodeIndexFromLink(children[i]));
         }
         updateHelper(work_queue);
