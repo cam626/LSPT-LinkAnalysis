@@ -11,4 +11,7 @@ def findRobot():
 
 @app.route('/crawl', methods=["POST"])
 def crawlNext():
-	return '{"URLS": ["http://www.google.com", "http://www.rpi.edu"]}'
+	json_data = request.get_json()
+	print(json_data["URLS"])
+	return '[]'
+	

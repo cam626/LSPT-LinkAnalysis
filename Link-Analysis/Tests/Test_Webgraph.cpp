@@ -124,15 +124,15 @@ void test_webgraph(vector<string> links, vector<Node> nodes)
     graph2.addConnection("www.3.com", "www.2.com");
     cout << "Testing updateRanks function ...\n";
     graph2.updateRank("www.1.com");
-    std::map<std::string, std::vector<float>> result = graph2.getAllRanks();
-    cout << result["www.1.com"][0] << endl;
-    cout << result["www.1.com"][1] << endl;
-    cout << result["www.2.com"][0] << endl;
-    cout << result["www.2.com"][1] << endl;
-    cout << result["www.3.com"][0] << endl;
-    cout << result["www.3.com"][1] << endl;
+    std::map<std::string, std::pair<float, float>> result = graph2.getAllRanks();
+    cout << result["www.1.com"].first << endl;
+    cout << result["www.1.com"].second << endl;
+    cout << result["www.2.com"].first << endl;
+    cout << result["www.2.com"].second << endl;
+    cout << result["www.3.com"].first << endl;
+    cout << result["www.3.com"].second << endl;
 
-    cout << "All tests for Node class passed!" << endl;
+    cout << "All tests for WebGraph class passed!" << endl;
 }
 
 int main()
@@ -148,7 +148,7 @@ int main()
     vector<Node> node_vec;
     for (uint i = 0; i < link_vec.size(); ++i)
     {
-        Node n(link_vec[i]);
+        Node n(link_vec[i], time(0));
         node_vec.push_back(n);
     }
     assert(link_vec.size() == node_vec.size());

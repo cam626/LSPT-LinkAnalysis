@@ -1,11 +1,14 @@
 #include "Sender.h"
 #include <iostream>
 
-#define CRAWL_HOST "129.161.139.90"
-#define CRAWL_PORT "3000"
+// #define CRAWL_HOST "129.161.139.90"
+// #define CRAWL_PORT "3000"
+// Testing:
+#define CRAWL_HOST "127.0.0.1"
+#define CRAWL_PORT "5000"
 
 #define INDEXING_HOST "127.0.0.1"
-#define INDEXING_PORT "9876"
+#define INDEXING_PORT "5001"
 
 /*
 	Callback function for when we receive a response from a request to the crawler.
@@ -150,7 +153,6 @@ std::string Sender::sendBatch(std::vector<std::string> batch)
 
 std::string Sender::sendRanks(std::map<std::string, std::pair<float, float>> ranks)
 {
-	// TODO: Create false indexing simulator to respond to this request (for testing)
 	std::string url = INDEXING_HOST ":" INDEXING_PORT;
 	std::string readBuffer;
 
@@ -171,7 +173,7 @@ std::string Sender::sendRanks(std::map<std::string, std::pair<float, float>> ran
 
 	while (itr != ranks.end())
 	{
-		message += "[" + itr->first + ", " + std::to_string(itr->second.first) + "]";
+		message += "[\"" + itr->first + "\", " + std::to_string(itr->second.first) + "]";
 
 		if (++itr != ranks.end())
 			message += ", ";
@@ -179,9 +181,11 @@ std::string Sender::sendRanks(std::map<std::string, std::pair<float, float>> ran
 
 	message += "]}";
 
-	// TODO: possible move the curl object to the listener object
 	CURL *curl;
 	CURLcode res;
+	struct curl_slist *headers = NULL;
+
+	std::cout << message << std::endl;
 
 	/* In windows, this will init the winsock stuff */
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -196,6 +200,8 @@ std::string Sender::sendRanks(std::map<std::string, std::pair<float, float>> ran
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		/* Now specify the POST data */
 		curl_easy_setopt(curl, CURLOPT_HTTPPOST, 1L);
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, message.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
