@@ -4,9 +4,10 @@ import json
 
 def Text_Transformation_controller(crawling_data,max_n_gram_size):
 
-    te = text_extract.TextExtractor(crawling_data['content'])		#Run the text extractor
-    
+    te = text_extract.TextExtractor(crawling_data['metadata']['content'])		#Run the text extractor
+
     output = dict()													#create the dictionary
+    #output['links'] = te.getLinksInDocument()						#Get links from html
     output['metadata'] = te.extractMetadata()						#Get metadata from html
     output['metadata']['url'] = crawling_data['url']				#get from crawling API
     output['metadata']['timestamp'] = crawling_data['metadata']['timestamp'], 	#get from crawling API
