@@ -285,9 +285,12 @@ void Listener::processQueue()
 		}
 		itr->second.erase(itr->second.begin(), itr->second.end());
 
-		response = this->sender.sendBatch(batch);
+		if (batch.size() != 0)
+		{
+			response = this->sender.sendBatch(batch);
 
-		std::cout << "Crawl Response: " << response << std::endl;
+			std::cout << "Crawl Response: " << response << std::endl;
+		}
 	}
 }
 
