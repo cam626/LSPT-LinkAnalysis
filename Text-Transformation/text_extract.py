@@ -37,6 +37,12 @@ class TextExtractor:
 
 
     '''
+    Formats the array of links so that it is readable by Link Analysis
+    '''
+    def formatLinks(self, links):
+        pass
+
+    '''
     Returns all links in the document (hrefs)
     '''
     def getLinksInDocument(self):
@@ -88,7 +94,7 @@ class TextExtractor:
         It igonores tags or comments that aren't relevant.
     '''
     def tag_visible(self, element):
-        if element.parent.name in ['style', 'script', 'meta', '[document]']:
+        if element.parent.name in ['style', 'script', 'meta', '[document]']: # parent gets the parent html tag
             return False
         if isinstance(element, Comment):
             return False
