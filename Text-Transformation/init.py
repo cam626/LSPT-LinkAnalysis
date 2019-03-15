@@ -5,10 +5,10 @@ def init():
 	initilization_data = {}	#Use a json to move the data around
 	
 	#The address of the Indexing team
-	initilization_data['Indexing_address'] = 'green-eth.cs.rpi.edu'
+	initilization_data['Indexing_address'] = 'N/A'
 
 	#The address of the Link Analysis Team
-	initilization_data['Link_Analysis_address'] = 'http://129.161.141.144:9080'
+	initilization_data['Link_Analysis_address'] = 'http://127.0.0.1:9080'
 
 	#The address of the Crawling team
 	initilization_data['Crawling_address'] = 'http://129.161.36.170:3000'

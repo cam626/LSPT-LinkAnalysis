@@ -32,27 +32,26 @@ async def post(request):
 		#Receive data from Crawling in the form of json file with all html data
 		crawling_data = await request.json()
 		if ( 'content' not in crawling_data['metadata']):
-			message = '\'conent\' not found in json'
+			message = '\'content\' not found in json'
 			return web.Response(text=message, status=400)
 
 		#Run our functions
-		output_json = Text_Transformation_controller(crawling_data, initilization_data['max_n_gram_size'])
+		(output_json_indexing, output_json_link_analysis) = Text_Transformation_controller(crawling_data, initilization_data['max_n_gram_size'])
 
 		#Send metadata to Link Analysis
-		#r = requests.post(initilization_data['Link_Analysis_address'], \
-		#	 json.dumps(output_json['metadata']))
+		r = requests.post(initilization_data['Link_Analysis_address'], json.dumps({output_json_indexing["metadata"]["url"]: output_json_link_analysis['links']}))
 
-		#Send data to Indexing
-		#r = requests.post(initilization_data['Indexing_address'],json.dumps(output_json))
+		# Send data to Indexing
+		# r = requests.post(initilization_data['Indexing_address'],json.dumps(output_json_indexing))
 
-		#Tell Crawling that this was a success
+		# Tell Crawling that this was a success
 		response_obj = {"status": 200}
 		logging.warn("{0} - Successfully finished processing request.".format(unique_task_id))
 		return web.Response(text=json.dumps(response_obj), status=200)
 
 	except Exception as e:
 		#Tell Crawling that this was a failure
-		logging.error("{0} - An Exception occurred.\nREQUEST:\n{1}".format(unique_task_id,json.dumps(request, indent=4)), exc_info=True)
+		logging.error("{0} - An Exception occurred.\nREQUEST:\n{1}".format(unique_task_id,json.dumps(crawling_data, indent=4)), exc_info=True)
 		response_obj = {"status": 500, "message": "Incorrect JSON Format: "}
 
 		logging.warn("{0} - Finished processing request in error.".format(unique_task_id))
