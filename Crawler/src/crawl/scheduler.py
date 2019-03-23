@@ -163,6 +163,7 @@ class Scheduler(threading.Thread):
                 if not self.hp_queue.empty():
                     #print("Removed link from hp_queue: " + self.hp_queue.get())
                     link = self.hp_queue.get()
+                    print("Submitting link to crawler", link)
                     self.crawled_hp[link] = executor.submit(crawl_link, link)
                 else:
                     if not self.lp_queue.empty():

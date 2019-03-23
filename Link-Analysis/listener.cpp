@@ -39,6 +39,17 @@ std::string stripHttp(std::string URL)
 	return URL;
 }
 
+bool validateURL(std::string URL)
+{
+	if (URL == stripHttp(URL))
+	{
+		// There was no HTTP or HTTPS so we will treat this as invalid
+		return false;
+	}
+
+	return true;
+}
+
 /*
     Extracts the domain from a given URL. This assumes that anything
     after an http prefix and before the next '/' is the domain.
@@ -57,7 +68,6 @@ std::string domainExtractor(std::string URL)
 
 static void *calculatePageRank(void *arg)
 {
-	printf("Separate thread fetching from queue...\n");
 	Listener *listener = (Listener *)arg;
 	pthread_mutex_lock(&mutex);
 	std::string head;
@@ -65,13 +75,9 @@ static void *calculatePageRank(void *arg)
 	heads.pop();
 	pthread_mutex_unlock(&mutex);
 
-	printf("Updating Ranks...\n");
-	listener->graph.updateRank(head);
-	printf("Ranks successfully updated.\n");
+	// listener->graph.updateRank(head);
 
-	printf("Sending ranks to indexing...\n");
-	listener->sender.sendRanks(listener->graph.getAllRanks());
-	printf("Ranks sent\n");
+	// listener->sender.sendRanks(listener->graph.getAllRanks());
 
 	printf("Sending robot requests (one per domain)...\n");
 	std::set<std::string>::iterator itr;
@@ -168,9 +174,11 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 		// Transfer the information from the JSON object into simple std objects
 		std::string head = doc["Head"].GetString();
+		pthread_mutex_lock(&mutex);
+		heads.push(head);
+		pthread_mutex_unlock(&mutex);
 
 		const rapidjson::Value &tails_json = doc["Tails"];
-		std::vector<std::string> tails;
 
 		if (!tails_json.IsArray())
 		{
@@ -180,6 +188,12 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 		for (rapidjson::Value::ConstValueIterator itr = tails_json.Begin(); itr != tails_json.End(); ++itr)
 		{
+			// Validate (basic) the URL before we do anything with it
+			if (!validateURL(itr->GetString()))
+			{
+				continue;
+			}
+
 			if (graph.hasLink(itr->GetString()))
 			{
 				// Check if a sufficient amount of time has passed (Minimum 1 day)
@@ -187,13 +201,13 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 				time_t timeout = temp_node.getTimestamp();
 
 				// TODO: Add custom timeouts to links if they request to be visited less often
-				if (timeout > time(0) + (60 * 60 * 24))
-				{
-					// Not enough time has passed -> skip this link
-					// This will prevent the link from being added to the queue
-					// which in turn means that it will not be sent to the crawler
-					continue;
-				}
+				// if (timeout > time(0) + (60 * 60 * 24))
+				// {
+				// 	// Not enough time has passed -> skip this link
+				// 	// This will prevent the link from being added to the queue
+				// 	// which in turn means that it will not be sent to the crawler
+				// 	continue;
+				// }
 			}
 
 			std::string domain = domainExtractor(itr->GetString());
@@ -207,16 +221,6 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 		// Send response to client that the data was correctly parsed
 		response.send(Http::Code::Ok, "JSON successfully parsed.\n");
-
-		// iterate through the unique domains and add them to the queue to be sent to crawling
-		std::set<std::string>::iterator itr;
-		for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
-		{
-			// Ensure we do not attempt to access the queue simultaneously
-			pthread_mutex_lock(&mutex);
-			heads.push(*itr);
-			pthread_mutex_unlock(&mutex);
-		}
 
 		// The new thread will be responsible for updating pageranks as well as communicating
 		// results to the crawler and indexer.
@@ -274,13 +278,13 @@ void Listener::processQueue()
 		std::vector<std::string> batch;
 		for (size_t i = 0; i < itr->second.size(); ++i)
 		{
-			if (allowedURL(itr->second[i]))
+			if (/*allowedURL(itr->second[i])*/ true)
 			{
 				/*
 					TODO: Use information from graph to check timestamp
 					      and add to batch if enough time has passed
 				*/
-				batch.push_back(itr->second[i]);
+				batch.push_back(stripHttp(itr->second[i]));
 			}
 		}
 		itr->second.erase(itr->second.begin(), itr->second.end());

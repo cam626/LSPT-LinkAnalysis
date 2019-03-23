@@ -16,18 +16,12 @@ import requests
 from crawl.scheduler import Scheduler
 from database.db import insertion, connect_db
 from database.scanner import db_scanner
-
-
-
-
-
-
+import json
 
 APP = Flask(__name__)
 API = Api(APP)
 SCHEDULER = Scheduler(5)
 COLLECTION = connect_db()
-
 
 class RobotsCrawl(Resource):
     """The robots.txt API endpoint to retreive what links not to crawl
@@ -45,6 +39,8 @@ class RobotsCrawl(Resource):
         """
 
         domain = request.args.get('url')
+        
+        print("Get request for robots on", domain)
         if domain is None or not validators.url(domain):
             return "Bad Request: Bad URL Sent", 400
         return get_bad_paths(domain), 200
@@ -97,15 +93,22 @@ def send_requests(results):
     """
 
     bad_urls = [] # Return object to the request
-    html_payload = [] # Payload containing the HTML texts
     for result in results.keys():
         if results[result][1] is True:
-            html_payload.append([result, results[result][0].read()])
+            html_payload = {} # Payload containing the HTML texts
+            html_payload["metadata"] = dict()
+            html_payload["metadata"]["content"] = str(results[result][0].read())
+            
+            html_payload["url"] = result
+            html_payload["metadata"]["timestamp"] = "2019-04-06"
             insertion(COLLECTION, result, 7, datetime.now(), True)
+    
+
+            req_tt = requests.post('http://127.0.0.1:8080', json=html_payload)
         else:
             bad_urls.append(result)
             insertion(COLLECTION, result, 7, datetime.now(), False)
-    #req_tt = requests.post('TT_URL', data=html_payload)
+
     #req_index = requests.post('INDEX_URL', data=return_obj)
     return bad_urls
 

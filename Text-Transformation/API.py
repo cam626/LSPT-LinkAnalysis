@@ -27,6 +27,7 @@ async def post(request):
 		unique_task_id = uuid.uuid1()
 		#Pull init data from file
 		initilization_data = init()
+
 		logging.warn("{0} - received a request".format(unique_task_id))
 
 		#Receive data from Crawling in the form of json file with all html data
@@ -39,7 +40,7 @@ async def post(request):
 		(output_json_indexing, output_json_link_analysis) = Text_Transformation_controller(crawling_data, initilization_data['max_n_gram_size'])
 
 		#Send metadata to Link Analysis
-		r = requests.post(initilization_data['Link_Analysis_address'], json.dumps({output_json_indexing["metadata"]["url"]: output_json_link_analysis['links']}))
+		r = requests.post(initilization_data['Link_Analysis_address'], json.dumps({"Head": output_json_indexing["metadata"]["url"], "Tails": output_json_link_analysis['links']}))
 
 		# Send data to Indexing
 		# r = requests.post(initilization_data['Indexing_address'],json.dumps(output_json_indexing))

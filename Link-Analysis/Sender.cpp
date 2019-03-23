@@ -5,7 +5,7 @@
 // #define CRAWL_PORT "3000"
 // Testing:
 #define CRAWL_HOST "127.0.0.1"
-#define CRAWL_PORT "5000"
+#define CRAWL_PORT "3000"
 
 #define INDEXING_HOST "127.0.0.1"
 #define INDEXING_PORT "5001"
@@ -81,7 +81,6 @@ std::string Sender::requestRobot(std::string domain)
 */
 std::string Sender::sendBatch(std::vector<std::string> batch)
 {
-
 	/*
 		Construct the message -
 			The message to the crawler is sending the next batch of URLs to Crawl. This is a JSON POST formatted
