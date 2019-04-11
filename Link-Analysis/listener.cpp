@@ -3,6 +3,14 @@
 #include <thread>
 #include <queue>
 #include <pthread.h>
+#include <chrono>
+#include <ctime>
+#include "Node.h"
+
+std::set<std::string> current_domains; // Any domains that are currently in the queue to be processed
+std::queue<std::string> heads;		   // Queue of URLs that should be sent to the crawler (if applicable)
+pthread_mutex_t mutex;
+
 /*
     Takes a URL and removes the http prefix if it exists.
 
@@ -11,13 +19,6 @@
 
     Returns: std::string with no http prefix.
 */
-
-//shared queue
-
-std::set<std::string> current_domains;
-std::queue<std::string> heads;
-pthread_mutex_t mutex;
-
 std::string stripHttp(std::string URL)
 {
 	// Make sure we don't try to take the substring if it isn't long enough
@@ -38,6 +39,17 @@ std::string stripHttp(std::string URL)
 	return URL;
 }
 
+bool validateURL(std::string URL)
+{
+	if (URL == stripHttp(URL))
+	{
+		// There was no HTTP or HTTPS so we will treat this as invalid
+		return false;
+	}
+
+	return true;
+}
+
 /*
     Extracts the domain from a given URL. This assumes that anything
     after an http prefix and before the next '/' is the domain.
@@ -56,57 +68,62 @@ std::string domainExtractor(std::string URL)
 
 static void *calculatePageRank(void *arg)
 {
-	printf("Separate thread fetching from queue...\n");
-	Listener *ptr = (Listener *)arg;
+	Listener *listener = (Listener *)arg;
 	pthread_mutex_lock(&mutex);
 	std::string head;
 	head = heads.front();
 	heads.pop();
 	pthread_mutex_unlock(&mutex);
 
-	printf("Updating Ranks...\n");
-	ptr->graph.updateRank(head);
-	printf("Ranks successfully updated.\n");
+	// listener->graph.updateRank(head);
 
-	printf("Sending ranks to indexing...\n");
-	int id = ptr->sender.addConnection(INDEX_HOST, INDEX_PORT);
-	ptr->sender.sendRanks(id, ptr->graph.getAllRanks());
-	printf("Ranks sent\n");
+	// listener->sender.sendRanks(listener->graph.getAllRanks());
 
-	printf("Sending robot requests...\n");
+	printf("Sending robot requests (one per domain)...\n");
 	std::set<std::string>::iterator itr;
 	for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
 	{
-		std::string response = ptr->sender.requestRobot(id, *itr);
+		std::string response = listener->sender.requestRobot(*itr);
 
 		// parse the json in response
 		rapidjson::Document doc;
 		rapidjson::ParseResult ok = doc.Parse(response.c_str());
 
-		std::cout << response << std::endl;
+		std::cout << "Response to request for robots on " << *itr << ":\n"
+				  << response
+				  << std::endl
+				  << std::endl;
 
-		if (!ok)
+		if (!ok) // ok holds the status from parsing the json response
 		{
 			std::cout << "Unable to parse response from crawler" << std::endl;
-			return NULL;
+			continue; // This will move on to the next domain
+					  // Could be caused by the crawler not being able to parse the request that we send
+					  // Or from a domain that does not exit
+					  // TODO: error handling (especially for non-existent domains)
 		}
 
+		// Partially validate the format of the data that we received
 		if (doc.IsArray())
 		{
 			const rapidjson::Value &json = doc;
 
+			// Add each response subdomain to the list of subdomains that we cannot index.
+			// TODO: Add feature to remove subdirectories from the blacklist if they are no longer on the robots.txt
 			for (rapidjson::Value::ConstValueIterator itr = json.Begin(); itr != json.End(); ++itr)
 			{
-				ptr->blacklist.insert(itr->GetString());
+				listener->blacklist.insert(itr->GetString());
 			}
 		}
 	}
-	printf("All robots sent.\n");
+	printf("Done sending robots.\n");
 
 	printf("POSTing next to crawl...\n");
 
-	ptr->processQueue();
+	// Tells the Crawler what to crawl next
+	listener->processQueue();
 
+	// This thread will terminate
 	return NULL;
 }
 
@@ -123,10 +140,14 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 {
 
 	// Copy the JSON from the request to a c-string to be used in the rapidJSON library
+	// TODO: write simple JSON parser to remove dependency on rapidJSON
 	char json[1048576];
 	bzero(&json, 1048576);
 	strcpy(json, request.body().c_str());
 
+	printf("%s\n", json);
+
+	// TODO: possible make the mutex belong to the listener object?
 	pthread_mutex_init(&mutex, NULL);
 	pthread_t tid;
 
@@ -153,9 +174,11 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 		// Transfer the information from the JSON object into simple std objects
 		std::string head = doc["Head"].GetString();
+		pthread_mutex_lock(&mutex);
+		heads.push(head);
+		pthread_mutex_unlock(&mutex);
 
 		const rapidjson::Value &tails_json = doc["Tails"];
-		std::vector<std::string> tails;
 
 		if (!tails_json.IsArray())
 		{
@@ -165,6 +188,28 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 
 		for (rapidjson::Value::ConstValueIterator itr = tails_json.Begin(); itr != tails_json.End(); ++itr)
 		{
+			// Validate (basic) the URL before we do anything with it
+			if (!validateURL(itr->GetString()))
+			{
+				continue;
+			}
+
+			if (graph.hasLink(itr->GetString()))
+			{
+				// Check if a sufficient amount of time has passed (Minimum 1 day)
+				Node temp_node = graph.getNodeFromLink(itr->GetString());
+				time_t timeout = temp_node.getTimestamp();
+
+				// TODO: Add custom timeouts to links if they request to be visited less often
+				// if (timeout > time(0) + (60 * 60 * 24))
+				// {
+				// 	// Not enough time has passed -> skip this link
+				// 	// This will prevent the link from being added to the queue
+				// 	// which in turn means that it will not be sent to the crawler
+				// 	continue;
+				// }
+			}
+
 			std::string domain = domainExtractor(itr->GetString());
 			this->queue[domain].push_back(itr->GetString());
 
@@ -177,15 +222,8 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 		// Send response to client that the data was correctly parsed
 		response.send(Http::Code::Ok, "JSON successfully parsed.\n");
 
-		// iterate through the unique domains and add them to the queue to be sent to crawling
-		std::set<std::string>::iterator itr;
-		for (itr = current_domains.begin(); itr != current_domains.end(); ++itr)
-		{
-			pthread_mutex_lock(&mutex);
-			heads.push(*itr);
-			pthread_mutex_unlock(&mutex);
-		}
-
+		// The new thread will be responsible for updating pageranks as well as communicating
+		// results to the crawler and indexer.
 		if (pthread_create(&tid, NULL, calculatePageRank, this))
 		{
 			printf("pthread_create failed!\n");
@@ -196,7 +234,8 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 	else if (doc.HasMember("BadURLs"))
 	{
 		// This section should be from the Crawling team. It should be a list of URLs that returned 404 or other errors
-		// during crawling.
+		// during crawling. We will add a timeout to the node to say that we should not revisit
+		// it for a longer period of time because it is less likely to be active.
 
 		if (!doc["BadURLs"].IsArray())
 		{
@@ -208,10 +247,14 @@ void Listener::onRequest(const Http::Request &request, Http::ResponseWriter resp
 		rapidjson::Value::ConstValueIterator itr;
 		for (itr = broken.Begin(); itr != broken.End(); ++itr)
 		{
-			// TODO: set timeout on node in the graph
+			// The timeout for broken URLs should be longer than the standard timeout
+			time_t t = time(0);
+
+			Node temp_node = graph.getNodeFromLink(itr->GetString());
+			temp_node.updateTimestamp(t + (60 * 60 * 24 * 3)); // Right now plus 3 days (in seconds)
 		}
 
-		response.send(Http::Code::Ok, "Node status updated.\n");
+		response.send(Http::Code::Ok, "Node statuses updated.\n");
 	}
 	else
 	{
@@ -235,20 +278,23 @@ void Listener::processQueue()
 		std::vector<std::string> batch;
 		for (size_t i = 0; i < itr->second.size(); ++i)
 		{
-			if (allowedURL(itr->second[i]))
+			if (/*allowedURL(itr->second[i])*/ true)
 			{
 				/*
 					TODO: Use information from graph to check timestamp
 					      and add to batch if enough time has passed
 				*/
-				batch.push_back(itr->second[i]);
+				batch.push_back(stripHttp(itr->second[i]));
 			}
 		}
 		itr->second.erase(itr->second.begin(), itr->second.end());
 
-		response = this->sender.sendBatch(batch);
+		if (batch.size() != 0)
+		{
+			response = this->sender.sendBatch(batch);
 
-		std::cout << "Crawl Response: " << response << std::endl;
+			std::cout << "Crawl Response: " << response << std::endl;
+		}
 	}
 }
 

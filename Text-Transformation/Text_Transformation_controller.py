@@ -4,29 +4,33 @@ import json
 
 def Text_Transformation_controller(crawling_data,max_n_gram_size):
 
-    te = text_extract.TextExtractor(crawling_data['content'])		#Run the text extractor
+    te = text_extract.TextExtractor(crawling_data['metadata']['content'])		#Run the text extractor
+
+    output_link_analysis = dict()													#create the dictionary
+    output_link_analysis['links'] = te.getLinksInDocument()						    # Get links from html
     
-    output = dict()													#create the dictionary
-    output['metadata'] = te.extractMetadata()						#Get metadata from html
-    output['metadata']['url'] = crawling_data['url']				#get from crawling API
-    output['metadata']['timestamp'] = crawling_data['metadata']['timestamp'], 	#get from crawling API
+    output_indexing = dict()													#create the dictionary
+    output_indexing['metadata'] = te.extractMetadata()						#Get metadata from html
+    output_indexing['metadata']['url'] = crawling_data['url']				#get from crawling API
+    output_indexing['metadata']['timestamp'] = crawling_data['metadata']['timestamp'], 	#get from crawling API
     
     list_of_words = te.getListOfWords() 
     n_grams = ngrams.generate_ngrams(list_of_words,max_n_gram_size)
     titles = ngrams.generate_ngrams(te.getTitleListOfWords(),max_n_gram_size)
     headers = ngrams.generate_ngrams(te.getHeaderListOfWords(),max_n_gram_size)
+    links = te.getLinksInDocument()
 
-    output['ngrams'] = {
+    output_indexing['ngrams'] = {
       'all' : n_grams,
       'headers' : headers, #we need to parse these
       'title' : titles  #we need to parse these.
     }
-    output["text"] = list_of_words
+    output_indexing["text"] = list_of_words
     
     #This line will print the results in output
-    print(json.dumps(output,indent=4))
+    print(json.dumps(output_indexing,indent=4))
 	
-    return output
+    return (output_indexing, output_link_analysis)
 
 if __name__== "__main__":
     Text_Transformation_controller({'url' : 'www.example.com', 'timestamp' : "2018-11-15T16:25:56+00:00"},5,1)

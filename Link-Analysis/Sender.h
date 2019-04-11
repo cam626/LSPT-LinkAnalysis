@@ -4,21 +4,15 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <curl/curl.h>
 
 class Sender
 {
   public:
 	Sender() {}
-	int addConnection(std::string host, int port);
-	int findConnection(std::string host, int port);
-	std::pair<std::string, int> findConnectionBySocket(int sock);
-	std::string requestRobot(int sock, std::string domain);
+	std::string requestRobot(std::string domain);
 	std::string sendBatch(std::vector<std::string> batch);
-	int sendRanks(int sock, std::map<std::string, std::pair<float, float>> ranks);
+	std::string sendRanks(std::map<std::string, std::pair<float, float>> ranks);
 
   private:
 	std::map<int, std::pair<std::string, int>> connections;
